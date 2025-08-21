@@ -31,5 +31,5 @@ numberOfLetterBs = random.randint(100, 200)  # generate a random number between 
 for x in range(numberOfLetterBs):
     print(f"B ", end=" ")
 
-# print results
+# print dictionary results
 print(f"\nDictionary results: {particles}")

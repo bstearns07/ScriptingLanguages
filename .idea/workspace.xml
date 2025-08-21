@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="76efa823-be02-4429-b49d-d26a86e39823" name="Changes" comment="final" />
+    <list default="true" id="76efa823-be02-4429-b49d-d26a86e39823" name="Changes" comment="final">
+      <change beforePath="$PROJECT_DIR$/Week1/Lab2-1/Lab2-2_quantum.py" beforeDir="false" afterPath="$PROJECT_DIR$/Week1/Lab2-1/Lab2-2_quantum.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
