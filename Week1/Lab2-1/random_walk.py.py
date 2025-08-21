@@ -155,4 +155,4 @@ if __name__ == "__main__":
         plt.axis('equal')
         plt.show()
 
-
+    plot_path(path) #call function
