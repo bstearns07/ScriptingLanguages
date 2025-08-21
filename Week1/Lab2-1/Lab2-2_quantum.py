@@ -20,7 +20,7 @@ while len(uniqueNumbers) < 5:
 uniqueNumbers = list(uniqueNumbers)  # convert to a list to numbers to be retrieved by indexing
 
 # generate 5 numbers between 0-1 to serve as the state of the quantum particle
-index = 0 # keeps track of what index to retrive a unique number from the uniqueNumbers list
+index = 0 # keeps track of what index to retrieve a unique number from the uniqueNumbers list
 for _ in range(5):
     # randomly generate a 0 or 1 to represent the state of the particle
     state = random.randint(0, 1)
@@ -34,5 +34,5 @@ numberOfLetterBs = random.randint(100, 200)  # generate a random number between 
 for _ in range(numberOfLetterBs):
     print("B ", end="")
 
-# print results
+# print dictionary results
 print(f"\nDictionary results: {particles}")
