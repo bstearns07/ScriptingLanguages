@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="76efa823-be02-4429-b49d-d26a86e39823" name="Changes" comment="final">
-      <change beforePath="$PROJECT_DIR$/Week1/Lab2-1/Lab2-2_quantum.py" beforeDir="false" afterPath="$PROJECT_DIR$/Week1/Lab2-1/Lab2-2_quantum.py" afterDir="false" />
-    </list>
+    <list default="true" id="76efa823-be02-4429-b49d-d26a86e39823" name="Changes" comment="quantum3" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -235,7 +233,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755786924211</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="quantum1">
+      <option name="closed" value="true" />
+      <created>1755792153874</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1755792153874</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -245,7 +251,8 @@
     <MESSAGE value="initial" />
     <MESSAGE value="word docs" />
     <MESSAGE value="final" />
-    <option name="LAST_COMMIT_MESSAGE" value="final" />
+    <MESSAGE value="quantum1" />
+    <option name="LAST_COMMIT_MESSAGE" value="quantum1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ScriptingLanguages$main.coverage" NAME="main Coverage Results" MODIFIED="1755616143660" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
