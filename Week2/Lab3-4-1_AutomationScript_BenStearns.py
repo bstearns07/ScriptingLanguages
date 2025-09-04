@@ -23,16 +23,15 @@ if not os.path.exists(destination):
 
 # loop through files in list
 for filename in files:
+    # create a Path object for the file's location to check if it already exists
+    destinationToCheck = destination / filename # appends the file location to the parent folder
 
-    # create a Path object for the file to check if it already exists
-    destinationCheck = destination / filename
-
-    # only proceed creating the files if they don't already exist in the folder
-    if not destinationCheck.exists():
+    # only proceed creating the file if it doesn't already exist in the folder
+    if not destinationToCheck.exists():
+        # create the file and write data to it
         with open(filename, "w") as file:
             file.write(f"Data number {num}\n")
-
-        # move the file from the root folder to the destination folder
+        # move the file from the parent folder to the destination folder
         shutil.move(filename, destination)
 
     # increment num variable just to write something different in the next file
