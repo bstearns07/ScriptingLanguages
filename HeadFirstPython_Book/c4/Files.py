@@ -3,7 +3,9 @@ import os
 
 # get list of files and remove zip-added file
 swim_files = os.listdir(swimclub.FOLDER)
-swim_files.remove(".DS_Store")
+
+if ".DS_Store" in swim_files:
+    swim_files.remove(".DS_Store")
 
 # use multiple assignment to store file data
 for num, file in enumerate(swim_files, 1):

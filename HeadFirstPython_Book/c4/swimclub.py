@@ -24,4 +24,4 @@ def Read_Swim_Data(filename):
     average_minutes = average_total_seconds // 60
     average_seconds = average_total_seconds - (average_minutes * 60)
     average_string = f"{average_minutes}:{average_seconds}.{average_hundredths}"
-    return swimmer, age, distance, stroke, times, average_string
+    return swimmer, age, distance, stroke, times, average_string, converted_times
