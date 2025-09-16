@@ -36,5 +36,5 @@ for filename in files:
     num += 1
 
 # print the contents of the folder
-for file in files:
-    print(file)
+folderContents = os.listdir(folder)
+print(folderContents)

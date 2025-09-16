@@ -44,7 +44,7 @@ def produce_bar_chart(filename: str):
                 </svg>{t}<br />
                 """
 
-    html = f""""<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
     <html>
         <head>
             <title>
