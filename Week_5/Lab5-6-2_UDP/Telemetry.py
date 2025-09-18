@@ -22,7 +22,7 @@ while attemptNumber < 3:
                 tempMsg = f"temp {temp}".encode("utf-8")
                 humidityMsg = f"humidity {humidity}".encode("utf-8")
 
-            # attempt to send values to the server, then store and print the response
+                # attempt to send values to the server, then store and print the response
                 sock.sendto(tempMsg, ("127.0.0.1", 9000))
                 sock.sendto(humidityMsg, ("127.0.0.1", 9000))
 
@@ -37,6 +37,9 @@ while attemptNumber < 3:
 
             # once all 5 data sets are sent, break from the while loop
             break
+    # If a timeout occurs, check what the attempt number is
+    # If on only the first attempt, say "attempting to retry", increment variable, and allow while loop to continue
+    # Otherwise print "ending program" and break the while loop
     except socket.timeout:
         if attemptNumber == 1:
             print("Timeout occurred. Attempting to retry...")
@@ -45,7 +48,7 @@ while attemptNumber < 3:
         else:
             print("Timeout occurred. Ending program...")
             break
-    # catch all other exceptions and print
+    # catch all other exceptions and print. Then break the while loop
     except Exception as e:
         print(f"Exception occurred: {e}")
         break
