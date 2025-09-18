@@ -30,6 +30,8 @@ while currentAttemptNumber < 3:
                 # store the server response up to a maximum of 1024 bytes
                 # print the response by decoding the bytes received back into a string
                 # skip any bytes received that aren't a valid utf-8 format to avoid decoding errors
+                if command == 'QUIT\n':
+                    time.sleep(1)
                 data = s.recv(1024)
                 print("Server response: " + data.decode("utf-8",errors="ignore"))
             # break the while loop once all commands have been executed
