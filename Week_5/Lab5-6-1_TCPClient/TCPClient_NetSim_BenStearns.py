@@ -2,8 +2,8 @@
 # Title: Lab 5.6.1 - TCPClient / Net Sim
 # Author: Ben Stearns
 # Date: 9-16-2025
-# Description: Program that simulates connecting to a network, creating a course, confirming the new course
-#              is created, delete the course, and confirm deletion
+# Description: Program that simulates creating a socket connection to a network, sending commands over the
+#              connection, and displaying the server's responses
 ############################################################################################################
 
 import socket # used for basic network communication and port scanning
@@ -12,10 +12,10 @@ import time
 # define IP address and port information for the listening network
 IP = "127.0.0.1"
 PORT = 7001
-currentAttemptNumber = 1
+attemptNumber = 1
 
 # try the connection only a maximum of 2 times
-while currentAttemptNumber < 3:
+while attemptNumber < 3:
     try:
         # use "with" statement so the socket closes once out of scope
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s: # set the address family to IPv4 and type to TCP
@@ -23,15 +23,16 @@ while currentAttemptNumber < 3:
             s.settimeout(3.0)
             s.connect((IP, PORT))
 
+            print("Connection successful")
+
             # send the required commands to the server one at a time
-            for command in ['SET Course networking\n','GET Course\n', 'DEL networking\n', 'GET Course\n', 'QUIT\n']:
-                s.sendall(command.encode("utf-8")) # encodes the command string into bytes required for network communication
+            for command in ['SET Course networking\n','GET Course\n', 'DEL Course\n','GET Course\n', 'QUIT\n']:
+                s.sendall(command.encode("utf-8")) # encodes the string into bytes required for network communication
 
                 # store the server response up to a maximum of 1024 bytes
                 # print the response by decoding the bytes received back into a string
                 # skip any bytes received that aren't a valid utf-8 format to avoid decoding errors
-                if command == 'QUIT\n':
-                    time.sleep(1)
+                time.sleep(0.5) # to give time for server to process command
                 data = s.recv(1024)
                 print("Server response: " + data.decode("utf-8",errors="ignore"))
             # break the while loop once all commands have been executed
@@ -39,12 +40,12 @@ while currentAttemptNumber < 3:
     # catch any timeout exceptions.
     # On first attempt display a "trying again" message. Otherwise, display "ending program" message
     except socket.timeout:
-        if currentAttemptNumber == 1:
-            print(f"Attempt {currentAttemptNumber} timed out. Attempting to re-connect...")
-            currentAttemptNumber += 1
+        if attemptNumber == 1:
+            print(f"Attempt {attemptNumber} timed out. Attempting to re-connect...")
+            attemptNumber += 1
         else:
-            print(f"Attempt {currentAttemptNumber} timed out. Ending program...")
-            currentAttemptNumber += 1
+            print(f"Attempt {attemptNumber} timed out. Ending program...")
+            break
     #catch all other exceptions and print what error happened. then break from the while loop
     except Exception as e:
         print(f"Exception occurred: {e}")
