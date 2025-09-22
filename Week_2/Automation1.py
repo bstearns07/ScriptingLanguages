@@ -1,7 +1,6 @@
 # pathlib is a polished, OO version of os library. Treats file paths as Path objects rather than strings
 from pathlib import Path
 
-
 # defines a function to list all files in a given path
 def listFiles(rootPath: str, pattern: str) -> list[str]:
 

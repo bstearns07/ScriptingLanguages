@@ -19,7 +19,7 @@ def atomicWrite(pathStr: str, text: str) -> None:
     # replace the old file with the original atomically
     # Atomic writing: either a file is completely written or not changed at all
     # The original file stays intact until the new one is fully ready
-    # Prevent partially written files in the app crashes during writing
+    # Prevents partially written files in the app crashes during writing
     # os.replace(src temp file, target file to replace)
     os.replace(var2, var1)  # atomic on same filesystem 
  
