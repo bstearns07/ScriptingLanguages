@@ -1,38 +1,55 @@
 # import the main Flask object
-from flask import Flask
+from flask import Flask, session, render_template
 import os
 import swimclub
 
 # create a flask object for the app
 # use the dunder name to associate the web app with the code's current namespace as required by Flask
 app = Flask(__name__)
+# enable app to work with session by creating a key that flask uses to encrypt cookies sent to browser
+app.secret_key = "Mouses00"
 
 # use @ decorator to associate get requests for the "/" url with the following index function
 @app.get("/")
 def index():
-    return "This is a placeholder for your webapp's opening page."
+    # imports a html file stored in the "templates" folder
+    return render_template(
+        "index.html",
+        title="Welcome to the Swimclub system",)
 
+# define a function to populate a session dictionary of swimmers files
+def populate_data():
+    if "swimmers" not in session:
+        swim_files = os.listdir("swimdata")
+        if ".DS_Store" in swim_files:
+            swim_files.remove(".DS_Store")
+        session["swimmers"] = {}
+        for file in swim_files:
+            name, *_ = swimclub.Read_Swim_Data(file)
+            if name not in session["swimmers"]:
+                session["swimmers"][name] = []
+            session["swimmers"][name].append(file)
 # define a function to handle GET requests for /swimmers url's
 # returns an ordered list of each swimmer
 @app.get("/swimmers")
 def display_swimmers():
-    swim_files = os.listdir("swimdata")
-    if ".DS_Store" in swim_files:
-        swim_files.remove(".DS_Store")
-    swimmers = []
-    for file in swim_files:
-        name, *_ = swimclub.Read_Swim_Data(file)
-        if name not in swimmers:
-            swimmers.append(name)
+    populate_data()
     # cast results to a string to ensure data sent to the browser is text as it expects
-    return str(sorted(swimmers))
+    return render_template(
+        "select.html",
+        title="Select a swimmer",
+        url="/showfiles",
+        select_id="swimmer",
+        data=sorted(session["swimmers"])
+    )
 
 # define a function to handle /files/<swimmer> get requests to return a swimmers files
 @app.get("/files/<swimmer>")
 def get_swimmers_files(swimmer):
-    return str(swimmers[swimmer])
+    populate_data()
+    return str(session["swimmers"][swimmer])
 
 if __name__ == "__main__":
     # run Flasks built-in web server and pass the web app code to it
     # run in debugging mode: Flask watches to saved changes in code and restarts the app automatically
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
