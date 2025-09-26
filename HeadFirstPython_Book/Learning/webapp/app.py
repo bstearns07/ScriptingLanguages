@@ -7,7 +7,7 @@ import swimclub
 # use the dunder name to associate the web app with the code's current namespace as required by Flask
 app = Flask(__name__)
 # enable app to work with session by creating a key that flask uses to encrypt cookies sent to browser
-app.secret_key = "Mouses00"
+app.secret_key = "supersecretcantguessme"
 
 # use @ decorator to associate get requests for the "/" url with the following index function
 @app.get("/")
