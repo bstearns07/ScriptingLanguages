@@ -1,0 +1,12 @@
+{% extend "base.html" %}
+
+{% block body %}
+<form method="post" action={{url}}>
+    <label for="{{select_id}}">Please select a {{select_id}}</label>
+    <select name="{{select_id}}" id="{{select_id}}">
+        {% for file in data %}
+        <option value="{{file}}">{{file}}</option>
+        {% endfor %}
+    </select>
+</form>
+{% endblock %}

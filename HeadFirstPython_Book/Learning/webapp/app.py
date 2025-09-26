@@ -1,5 +1,5 @@
 # import the main Flask object
-from flask import Flask, session, render_template
+from flask import Flask, session, render_template, request
 import os
 import swimclub
 
@@ -44,10 +44,27 @@ def display_swimmers():
     )
 
 # define a function to handle /files/<swimmer> get requests to return a swimmers files
-@app.get("/files/<swimmer>")
-def get_swimmers_files(swimmer):
+@app.post("/showfiles")
+def get_swimmers_files():
     populate_data()
-    return str(session["swimmers"][swimmer])
+    name = request.form["swimmer"]
+    return render_template(
+        "select.html",
+        title="Select an event",
+        select_id="file",
+        url="/showbarchart",
+        data=session["swimmers"][name]
+    )
+
+# define function for /showbarchart post requests
+@app.post("/showbarchart")
+def show_bar_chart():
+    file_id = request.form["file"] # returns the filename selected from the /showfiles select element
+    # use the produce_bar_chart function to create a save a html file for the file_id's bar chart to /templates folder
+    # use render_template to then load that saved html file (must remove templates/ suffix. Jinja looks for HTML files)
+    location = swimclub.produce_bar_chart(file_id,"templates/")
+    return render_template(location.split("/")[-1])
+
 
 if __name__ == "__main__":
     # run Flasks built-in web server and pass the web app code to it

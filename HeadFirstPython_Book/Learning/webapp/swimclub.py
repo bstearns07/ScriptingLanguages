@@ -28,7 +28,7 @@ def Read_Swim_Data(filename):
     average_string = f"{average_minutes}:{average_seconds:0>2}.{average_hundredths}"
     return swimmer, age, distance, stroke, times, average_string, converted_times
 
-def produce_bar_chart(filename: str):
+def produce_bar_chart(filename: str,location=CHARTS):
     swimmer, age, distance, stroke, times, average, convertedTimes = Read_Swim_Data(filename)
     title = f"{swimmer} (Under {age}) {distance} {stroke}"
     from_max = max(convertedTimes)
@@ -59,7 +59,7 @@ def produce_bar_chart(filename: str):
     </html>"""
     print(html)
 
-    save_to = f"{CHARTS}{filename.removesuffix(".txt")}.html"
+    save_to = f"{location}{filename.removesuffix(".txt")}.html"
     with open(save_to,"w") as sf:
         print(html, file=sf)
 
