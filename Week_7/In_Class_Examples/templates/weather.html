@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather for {{ current_weather['name'] }}</title>
+</head>
+<body>
+    <h1>Current Weather in {{ current_weather['name'] }}</h1>
+    <p>Temperature: {{ current_weather['main']['temp'] }}°C</p>
+    <p>Weather: {{ current_weather['weather'][0]['description'] }}</p>
+    <h2>5-Day Forecast</h2>
+    <ul>
+        {% for forecast in forecast['list'] %}
+        <li>{{ forecast['dt_txt'] }} | Temp: {{ forecast['main']['temp'] }}°C | {{ forecast['weather'][0]['description'] }}</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Go Back</a>
+</body>
+</html>
