@@ -11,7 +11,7 @@
 # imports
 import yfinance as yf # to retrieve finance data
 import matplotlib.pyplot as plt # to plot data into a chart
-import logging # to access and silence any unnecessary logging information printed to the console by yfinance
+import logging # to silence annoying logging info printed by yfinance
 
 # create a list of valid time periods for error checking
 valid_periods = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"]
