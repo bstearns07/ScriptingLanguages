@@ -9,8 +9,6 @@
 ############################################################################################################
 
 # imports
-import requests
-from bs4 import BeautifulSoup
 import yfinance as yf # to retrieve finance data
 import matplotlib.pyplot as plt # to plot data into a chart
 import logging # to access and silence any unnecessary logging information printed to the console by yfinance
@@ -23,39 +21,40 @@ tickers = input("Enter any number stock ticker symbols separated by a SPACE: ").
 
 # ask the user what period of time to retrieve data from until a valid entry is made
 while True:
-    period = input("Enter the period to retrieve data for (example: 1mo, 6mo, 1y): ").lower()
+    period = input("How far back do you want to retrieve data: (example: 1mo, 6mo, 1y): ").lower()
     if period in valid_periods:
         break
     else:
-        print(f"\nInvalid period. Please choose from: {', '.join(valid_periods)}")
-print(f"\nRetrieving data for {', '.join(tickers)} going back {period}...\n")
+        print(f"\nInvalid time period. Please choose from: {', '.join(valid_periods)}")
 
-# Silence yfinance logging
+print(f"\nRetrieving data for {', '.join(tickers)} going back {period}...\n")
+# Silence red logging information from yfinance
 logging.getLogger("yfinance").setLevel(logging.CRITICAL)
 
 try:
-    # download the data for the user's ticker symbols
+    # download the first 5 rows of data for the user's ticker symbol(s) and period
     data = yf.download(tickers, auto_adjust=False, progress=False, period=period).head(5)
 
     # Only print the datagram if it has rows in it
     if data.empty:
         print(f"No data was found for ticker symbol(s): {', '.join(tickers)}")
     else:
+        print("Here are the first 5 rows found:")
         print(data)
 
         # create a plot figure big enough so words don't squish together too much
         plt.figure(figsize=(8,5))
 
         # plot each ticker the user entered
-        for ticker in tickers:
+        for ticker_symbol in tickers:
             # retrieve the closing price column data.
             # If column has no data, only plot a dummy legend entry
-            closing_price_column = data["Close"][ticker]
+            closing_price_column = data["Close"][ticker_symbol]
             if closing_price_column.isna().all():
-                plt.plot([], [], label=f"{ticker}: No data found. Check spelling", linestyle="--", color="gray")
+                plt.plot([], [], label=f"{ticker_symbol}: No data found. Check spelling", linestyle="--", color="gray")
             else:
                 # Plot normally if data was found for the ticker
-                plt.plot(closing_price_column.index, closing_price_column, label=ticker)
+                plt.plot(closing_price_column.index, closing_price_column, label=ticker_symbol)
 
         # Add labels, title, and legend. Then show chart
         plt.xlabel("Date")
@@ -65,4 +64,4 @@ try:
         plt.show()
 # catch and print all exceptions thrown
 except Exception as e:
-    print(f"An error occured: {e}")
+    print(f"An error occurred: {e}")
