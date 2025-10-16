@@ -47,14 +47,22 @@ while user_response != "5":
     user_response = input("> ")
 
     # proceed only if user entered a valid main menu option
-    if user_response not in VALID_MAIN_MENU:
+    while user_response not in VALID_MAIN_MENU:
         print("\nInvalid entry. Please enter the number for your selection")
-    else:
-        match user_response:
-            case "1": # filter by genre
-                print(f"Enter a genre: {", ".join(VALID_GENRES)}")
-                user_response = input("> ").strip().lower()
-                if user_response not in VALID_MAIN_MENU:
-                    print("Invalid entry. Please enter a valid genre")
-                    uer_response = input("> ").strip().lower()
+        user_response = input("> ")
+
+    # determine program function based on user's main menu choice
+    match user_response:
+        case "1": # filter by genre
+            print(f"Enter a genre: {", ".join(VALID_GENRES)}")
+            user_response = input("> ").strip().lower()
+            while user_response not in VALID_MAIN_MENU:
+                print("Invalid entry. Please enter a valid genre")
+                uer_response = input("> ").strip().lower()
+        case "5":
+            break
+
+# thank the user for using the program!
+print("\nThank you for using Ben's Stearns Movie Data App!")
+print("Goodbye")
 
