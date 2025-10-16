@@ -8,12 +8,13 @@ countries = ['USA', 'India', 'Brazil', 'UK', 'Russia']
 
 data = {
     'date': np.tile(dates, len(countries)), # repeats entire dates array once for each country
-    'country': np.repeat(countries, len(dates)), # repeats every country date for each date
+    'country': np.repeat(countries, len(dates)), # repeats every country for each date
     # generate random data ensuring it has the same length as the number of rows
     'cases': np.random.randint(1000, 1000000, size=len(dates) * len(countries)),
     'deaths': np.random.randint(10, 50000, size=len(dates) * len(countries)),
     'vaccinations': np.random.randint(1000, 5000000, size=len(dates) * len(countries))
 }
+print(data["date"])
 
 df = pd.DataFrame(data) # convert data into a table-like dataframe
 print(df)
