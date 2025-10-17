@@ -41,7 +41,7 @@ movie_data = []
 # define a function that performs an api request for the list of movies' data
 def get_data():
     # loop through each title in the movies list to do an api request for that title's information
-    for title in movies:
+    for i, title in enumerate(movies, start=1): # uses i starting at 1 to keep track of how many movies have processed
         # defines the url used to search for a title's information, parse into json, and store response as a dictionary
         url=f"https://www.omdbapi.com/?t={title}&apikey={API_KEY}"
         response = requests.get(url).json() # .json() automatically converts json to dictionary format
@@ -58,6 +58,10 @@ def get_data():
                 "Duration": response.get("Runtime", "").replace(" min", "") # remove the "min"  so data is only numeric
             })
 
+            # Print a status update every 5 movies
+            if i % 5 == 0:
+                print(f"  ...still working ({i}/{len(movies)} movies processed)")
+
     # create a dataframe using the all the movies retrieved from the api request and save as an .csv file
     df = pd.DataFrame(movie_data)
     df.to_csv(CSV_FILENAME, index=False) # index=False means don't include the row numbers
@@ -65,6 +69,9 @@ def get_data():
 
 # if this file is ran directly, perform the api search for data
 if __name__ == "__main__":
-    print("Creating CSV file. Please wait...")
-    get_data()
-    print("Movie data successfully created")
+    try:
+        print("Creating CSV file. Please wait...")
+        get_data()
+        print("Movie data successfully created")
+    except Exception as e:
+        print(f"An error occured retrieving the online information: {e}")

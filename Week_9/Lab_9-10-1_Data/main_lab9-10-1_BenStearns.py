@@ -28,8 +28,10 @@ MAIN_MENU = """\nMain Menu
 [2] Calculate stats
 [3] Show top movies
 [4] Visualize data
-[5] Exit"""
-VALID_MAIN_MENU = ["1","2","3","4","5"]         # for validating that the user enters a valid menu option
+[5] Show All Movies
+[6] Exit"""
+VALID_MAIN_MENU = ["1","2","3","4","5","6"]         # for validating that the user enters a valid menu option
+
 VALID_GENRES = ["Adventure","Action","Drama",   # for validating that the user enters a valid genre
                 "Crime","Animation","Comedy",
                 "Biography"]
@@ -38,16 +40,16 @@ VALID_GENRES = ["Adventure","Action","Drama",   # for validating that the user e
 print("Welcome to Ben's Stearns Movie Data App!")
 
 # wrap repeated logic in a while loop for as long as the user doesn't enter "5" to quit the application
-while user_response != "5":
+while user_response != "6":
     print(MAIN_MENU)
     user_response = input("> ")
 
     # validate the user entered a valid main menu option before proceeding
     while user_response not in VALID_MAIN_MENU:
-        print("\nInvalid entry. Please enter the number for your selection")
+        print("Invalid entry. Please enter the number for your selection")
         user_response = input("> ")
 
-    # match program function to the user's main menu response
+    # match program functionality to the user's main menu response
     match user_response:
 
         # filter by genre
@@ -60,7 +62,7 @@ while user_response != "5":
                 user_response = input("> ").strip().title()
             # filter the dataframe by the user's response and print the results (print only necessary columns)
             filtered_df = df[df["Genre"] == user_response]
-            print(filtered_df[["Title","Genre"]])
+            print(filtered_df[["Title","Genre"]].to_string(index=False))
 
         # Calculate Stats Menu Option
         case "2":
@@ -74,27 +76,41 @@ while user_response != "5":
             # sort dataframe by rating in descending order and select the top 10 rows
             sorted_df = df.sort_values(by="Rating", ascending=False).head(10)
             print("Here are Ben's top 10 movies by rating!")
-            print(sorted_df[["Title","Rating"]])
+            print(sorted_df[["Title","Rating"]].to_string(index=False))
 
         # Visualize Data Menu Option
         case "4":
             # Set the plot style and figure size
-            sns.set(style="whitegrid")
-            plt.figure(figsize=(14, 10))
             # subplot the matplot into 3 rows and 1 column to accommodate all 3 graphs
-            plt.subplot(3, 1, 1)
-            # create a bar chart using the dataframe.
-            sns.barplot(data=df, x='Rating', y='Genre', hue='Genre', palette='Blues')
-            plt.title('Average Rating by Genre')
-            plt.ylabel("Genre")
-            plt.xticks(rotation=45)
+            sns.set(style="whitegrid")
+            fig, axs = plt.subplots(3, 1, figsize=(14, 16))
+            # Bar chart - Average rating of each genre
+            sns.barplot(x='Genre', y='Rating', data=df, ax=axs[0], hue="Genre", palette='viridis', errorbar=None)
+            axs[0].set_title('Average Rating')
+            axs[0].set_ylabel('Rating')
+            # Pie Chart - distribution by genre
+            genre_counts = df['Genre'].value_counts()  # counts how many movies there are per genre
+            axs[1].pie(genre_counts, labels=genre_counts.index, autopct='%1.1f%%', startangle=140)
+            axs[1].axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
+            axs[1].set_title('Distribution of Genres')
+            # Histogram - Distribution of movie durations
+            sns.histplot(df['Duration'], bins=10, kde=True, color='skyblue', ax=axs[2])
+            axs[2].set_title('Distribution of Movie Durations')
+            axs[2].set_xlabel('Duration (minutes)')
+            axs[2].set_ylabel('Frequency')
             # show chart
             plt.tight_layout() # automatically adjusts spacing between subplots to prevent overlapping labels or titles
             plt.show()
-        # Quit the program menu option
+
+        # Show All Movies Menu Option Logic
         case "5":
+            print("Alright, here are all of Ben's movies:")
+            print(df.to_string())
+
+        # Quit the program menu option
+        case "6":
             break
 
 # thank the user for using the program!
-print("\nThank you for using Ben's Stearns Movie Data App!")
+print("\nThank you for using the Ben's Stearns Movie Data App!")
 print("Goodbye")
