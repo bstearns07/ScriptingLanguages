@@ -42,7 +42,7 @@ movie_data = []
 def get_data():
     # loop through each title in the movies list to do an api request for that title's information
     for title in movies:
-        # defines the url used to search for a title's information, parse into json, and store the response as a dictionary
+        # defines the url used to search for a title's information, parse into json, and store response as a dictionary
         url=f"https://www.omdbapi.com/?t={title}&apikey={API_KEY}"
         response = requests.get(url).json() # .json() automatically converts json to dictionary format
 
@@ -51,7 +51,7 @@ def get_data():
             movie_data.append({
                 "Title": response.get("Title", ""), # retrieves information by key. If fails use empty string as default
                 "Year": response.get("Year", ""),
-                "Rating": float(response.get("imdbRating", random.uniform(1.0, 10.0))),  # provide a random rating if not found
+                "Rating": float(response.get("imdbRating", random.uniform(1.0, 10.0))),  # randomize if needed
                 # only retrieve the first genre listed using .split(,) at index [0]
                 # If genre not found, use an empty string to prevent an exception from being thrown
                 "Genre": response.get("Genre", "").split(",")[0] if response.get("Genre") else "",
