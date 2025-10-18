@@ -4,12 +4,13 @@
 # Date.............: 10-16-2025
 # Purpose..........: The purpose of this program is to:
 #                       - Load movie data that was fetched and saved into as a .csv file
-#                       - Establish a user menu allowing for the following functions:
+#                       - Establish a user interface allowing for the following functions:
 #                           - Filter movies by genre
-#                           - Calculating statistics for average rating and movie runtime
-#                           - List top movies by rating
-#                           - Visualize the data as a bar, line, and histogram chart
-#                           - Exiting the application
+#                           - Calculating statistics for average rating and average movie runtime
+#                           - List top 10 movies by rating
+#                           - Visualize the data using bar, line, and histogram charts
+#                           - View all movies in the csv file
+#                           - Exit the program
 # File Description...: defines logic for retrieving data for pre-defined movie titles using the Open Movie Database API
 #######################################################################################################################
 
@@ -52,8 +53,8 @@ def get_data():
                 "Title": response.get("Title", ""), # retrieves information by key. If fails use empty string as default
                 "Year": response.get("Year", ""),
                 "Rating": float(response.get("imdbRating", random.uniform(1.0, 10.0))),  # randomize if needed
-                # only retrieve the first genre listed using .split(,) at index [0]
-                # If genre not found, use an empty string to prevent an exception from being thrown
+                # since more than one genre may be returned for a movie, only keep the first one
+                # If genre not found, use an empty string to prevent an exception from being thrown from using split()
                 "Genre": response.get("Genre", "").split(",")[0] if response.get("Genre") else "",
                 "Duration": response.get("Runtime", "").replace(" min", "") # remove the "min"  so data is only numeric
             })
@@ -62,7 +63,7 @@ def get_data():
             if i % 5 == 0:
                 print(f"  ...still working ({i}/{len(movies)} movies processed)")
 
-    # create a dataframe using the all the movies retrieved from the api request and save as an .csv file
+    # create a dataframe using the all the movies appended to the movie_data list and save as an .csv file
     df = pd.DataFrame(movie_data)
     df.to_csv(CSV_FILENAME, index=False) # index=False means don't include the row numbers
     return CSV_FILENAME
@@ -74,4 +75,4 @@ if __name__ == "__main__":
         get_data()
         print("Movie data successfully created")
     except Exception as e:
-        print(f"An error occured retrieving the online information: {e}")
+        print(f"An error occurred retrieving the online information: {e}")
