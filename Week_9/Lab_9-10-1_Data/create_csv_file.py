@@ -1,5 +1,5 @@
 ########################################################################################################################
-# Title............: Lab 9.10.1
+# Title............: Lab 9.10.1 - Data
 # Author...........: Ben Stearns
 # Date.............: 10-16-2025
 # Purpose..........: The purpose of this program is to:
@@ -8,7 +8,7 @@
 #                           - Filter movies by genre
 #                           - Calculating statistics for average rating and average movie runtime
 #                           - List top 10 movies by rating
-#                           - Visualize the data using bar, line, and histogram charts
+#                           - Visualize the data using bar, pie, and histogram charts
 #                           - View all movies in the csv file
 #                           - Exit the program
 # File Description...: defines logic for retrieving data for pre-defined movie titles using the Open Movie Database API
