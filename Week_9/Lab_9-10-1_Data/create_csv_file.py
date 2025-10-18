@@ -3,7 +3,7 @@
 # Author...........: Ben Stearns
 # Date.............: 10-16-2025
 # Purpose..........: The purpose of this program is to:
-#                       - Load movie data that was fetched and saved into as a .csv file
+#                       - Load movie data that was fetched and saved as a .csv file
 #                       - Establish a user interface allowing for the following functions:
 #                           - Filter movies by genre
 #                           - Calculating statistics for average rating and average movie runtime
@@ -19,7 +19,7 @@ import pandas as pd # to allow for data containment and visualization
 import requests # to allow the handling of api requests for retrieving movie data
 
 # define 3 variables for csv filename, open movie database api key & a list of movies to retrieve from the database
-CSV_FILENAME = "ben_stearns_movie_data.csv"
+CSV_FILENAME = "movies.csv"
 API_KEY = "825983b2"
 movies = [
     "The Shawshank Redemption", "The Godfather", "The Dark Knight", "12 Angry Men", "Schindler's List",

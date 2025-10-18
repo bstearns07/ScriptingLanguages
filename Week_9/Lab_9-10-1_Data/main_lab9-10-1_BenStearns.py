@@ -13,13 +13,13 @@
 #                           - Exit the program
 # File Description.: defines the main program user interface for the application
 #######################################################################################################################
-import pandas as pd             # to allow for data containment and visualization
-import matplotlib.pyplot as plt # for control of figure size, subplots, and display
-import seaborn as sns           # data visualization tool
-import create_csv_file          # for retrieving movie information stored in a csv file via Open Movie Database API
+import pandas as pd                             # to allow for data containment and visualization
+import matplotlib.pyplot as plt                 # for control of figure size, subplots, and display
+import seaborn as sns                           # data visualization tool
+import create_csv_file                          # for the .cvs filepath variable to read movie data
 
 # program variables
-df = pd.read_csv(create_csv_file.CSV_FILENAME)  # generate and load the movie data csv file as a dataframe
+df = pd.read_csv(create_csv_file.CSV_FILENAME)  # load the movie data from the csv file as a dataframe object
 user_response = ""                              # stores user's response to all prompts
 # for printing the main menu
 MAIN_MENU = """\nMain Menu                        
@@ -30,8 +30,8 @@ MAIN_MENU = """\nMain Menu
 [4] Visualize data
 [5] Show All Movies
 [6] Exit"""
-VALID_MAIN_MENU_OPTIONS = ["1", "2", "3", "4", "5", "6"]     # for validating that the user enters a valid menu option
-VALID_GENRES = ["Adventure","Action","Drama",   # for validating that the user enters a valid genre
+VALID_MAIN_MENU_OPTIONS = ["1", "2", "3", "4", "5", "6"]    # for validating that the user enters a valid menu option
+VALID_GENRES = ["Adventure","Action","Drama",               # for validating that the user enters a valid genre
                 "Crime","Animation","Comedy",
                 "Biography"]
 
@@ -84,19 +84,21 @@ while user_response != "6":
             sns.set_theme(style="whitegrid")
             fig, axs = plt.subplots(3, 1, figsize=(15, 18))
             # Bar chart - Average rating of each genre
-            sns.barplot(x='Genre', y='Rating', data=df, ax=axs[0], hue="Genre", palette='viridis', errorbar=None)
-            axs[0].set_title('Average Rating')
-            axs[0].set_ylabel('Rating')
+            sns.barplot(x="Genre", y="Rating", data=df, ax=axs[0], hue="Genre", palette='viridis', errorbar=None)
+            axs[0].set_title("Average Rating")
+            axs[0].set_ylabel("Rating")
             # Pie Chart - distribution by genre
-            genre_counts = df['Genre'].value_counts()  # counts how many movies there are per genre
+            genre_counts = df["Genre"].value_counts()  # counts how many movies there are per genre
             axs[1].pie(genre_counts, labels=genre_counts.index, autopct='%1.1f%%', startangle=140)
-            axs[1].axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
-            axs[1].set_title('Distribution of Genres')
+            axs[1].axis("Equal") # Equal aspect ratio ensures that pie is drawn as a circle.
+            axs[1].set_title("Distribution of Genre")
             # Histogram - Distribution of movie durations
-            sns.histplot(df['Duration'], bins=10, kde=True, color='skyblue', ax=axs[2])
-            axs[2].set_title('Distribution of Movie Durations')
-            axs[2].set_xlabel('Duration (minutes)')
-            axs[2].set_ylabel('Frequency')
+            # bins=10: divides duration range into 10 equal intervals
+            # kde=True: adds Kernel Density Estimate to chart (smooth trend line estimating distribution shape)
+            sns.histplot(df["Duration"], bins=10, kde=True, color='skyblue', ax=axs[2])
+            axs[2].set_title("Distribution of Movie Durations")
+            axs[2].set_xlabel("Duration (minutes)")
+            axs[2].set_ylabel("Frequency")
             # show chart
             plt.tight_layout() # automatically adjusts spacing between subplots to prevent overlapping labels or titles
             plt.show()
