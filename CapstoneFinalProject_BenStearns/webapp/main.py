@@ -26,7 +26,7 @@ def main():
         text = extract_text(processed_image)
         info = extract_contact_info(text)
 
-        cv2.imwrite("debug_processed.jpg", processed_image)
+        cv2.imwrite("../debug_processed.jpg", processed_image)
 
         print("===Extracted Text===")
         print(text)
