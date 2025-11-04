@@ -15,17 +15,24 @@ import os
 from preprossing import preprocess_image
 from extractor import extract_text
 from utils import extract_contact_info
+import cv2          # to allow for preprocessing of images to prepare for OCR
+
+images_dir = "samples"
 
 def main():
-    for file in os.listdir('samples'):
-        processed_image = preprocess_image(file)
+    for file in os.listdir(images_dir):
+        image_filepath = os.path.join(images_dir, file)
+        processed_image = preprocess_image(image_filepath)
         text = extract_text(processed_image)
-        info = extract_contact_info(processed_image)
+        info = extract_contact_info(text)
+
+        cv2.imwrite("debug_processed.jpg", processed_image)
 
         print("===Extracted Text===")
         print(text)
         print("===Image Information===")
         print(info)
+        print()
 
 if __name__ == "__main__":
     main()

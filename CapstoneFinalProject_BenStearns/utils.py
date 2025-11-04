@@ -12,9 +12,14 @@
 import re
 
 def extract_contact_info(text):
-    emails = re.findall(r'\S+@\S+', text)
-    phones = re.findall(r'\d{3}[-.\s]\d{3}[-.\s]\d{4}', text)
-    names = [line for line in text.split('n') if line.istitle() and len(line.split()) <= 3]
+    # Normalize OCR quirks
+    cleaned = text.replace("—", "-").replace(":", "-").replace("#", "")
+
+    emails = re.findall(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', cleaned)
+    phones = re.findall(r'\(?\d{2,3}\)?[-.\s]?\d{2,3}[-.\s]?\d{3,4}', cleaned)
+    names = [line.strip() for line in cleaned.split('\n')
+             if line.strip() and line[0].isupper() and len(line.split()) <= 3]
+
     return {
         'emails': emails,
         'phones': phones,
