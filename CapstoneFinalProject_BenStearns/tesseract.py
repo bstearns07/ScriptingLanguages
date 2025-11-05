@@ -5,7 +5,7 @@
 # Purpose...........: The purpose of this program is to:
 #                       - Scan an image of a card
 #                       - Extracts the text using OCR
-# File Description..:
+# File Description..: defines the function to run the tesseract program
 #######################################################################################################################
 # REQUIRED: Download tesseract here => https://github.com/UB-Mannheim/tesseract/wiki
 #pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
