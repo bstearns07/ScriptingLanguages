@@ -8,42 +8,39 @@
 # File Description...: to enhance images so ocular recognition can read text more accurately
 #######################################################################################################################
 
-# imports
-import cv2          # to allow for preprocessing of images to prepare for OCR
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+import numpy as np
 
 def preprocess_image(image_path):
-    # image = cv2.imread(image_path)
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # # blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    # # thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-    # return gray
-    image = cv2.imread(image_path)
-
-    if image is None:
-        raise FileNotFoundError(f"Could not read image: {image_path}")
+    # Load image
+    image = Image.open(image_path)
 
     # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = image.convert("L")
 
-    # Resize (helps Tesseract on small fonts)
-    scale_percent = 150  # 150% of original size
-    width = int(gray.shape[1] * scale_percent / 100)
-    height = int(gray.shape[0] * scale_percent / 100)
-    gray = cv2.resize(gray, (width, height), interpolation=cv2.INTER_LINEAR)
+    # Resize to improve OCR accuracy
+    scale = 1.5
+    new_size = (int(gray.width * scale), int(gray.height * scale))
+    gray = gray.resize(new_size, Image.LANCZOS)
 
-    # Apply contrast and brightness adjustment (normalize)
-    gray = cv2.convertScaleAbs(gray, alpha=1.5, beta=10)
+    # Increase contrast and brightness slightly
+    enhancer_contrast = ImageEnhance.Contrast(gray)
+    gray = enhancer_contrast.enhance(1.5)  # contrast factor
 
-    # Use adaptive thresholding for uneven lighting
-    adaptive = cv2.adaptiveThreshold(
-        gray, 255,
-        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY,
-        31,  # blockSize (odd number)
-        10  # constant subtracted from mean
-    )
+    enhancer_brightness = ImageEnhance.Brightness(gray)
+    gray = enhancer_brightness.enhance(1.1)  # brightness factor
 
-    # Optional: slight noise reduction
-    denoised = cv2.medianBlur(adaptive, 3)
+    # Convert to NumPy for thresholding (like cv2 adaptive threshold)
+    np_img = np.array(gray)
 
-    return denoised
+    # Simple adaptive threshold approximation
+    mean = np_img.mean()
+    binary = np.where(np_img > mean - 15, 255, 0).astype(np.uint8)
+
+    # Back to Pillow for saving/processing
+    processed = Image.fromarray(binary)
+
+    # Optional: denoise slightly
+    processed = processed.filter(ImageFilter.MedianFilter(size=3))
+
+    return processed

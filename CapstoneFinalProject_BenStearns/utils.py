@@ -1,15 +1,15 @@
 ########################################################################################################################
-# Title.............: Capstone Final Project - Ocular Recognition
-# Author............: Ben Stearns
-# Date..............: 10-30-2025
-# Purpose...........: The purpose of this program is to:
+# Title..............: Capstone Final Project - Ocular Recognition
+# Author.............: Ben Stearns
+# Date...............: 10-30-2025
+# Purpose............: The purpose of this program is to:
 #                       - Scan an image of a card
 #                       - Extracts the text using OCR
-# File Description..: uses regex pattern for find specific data types from an image's extracted text
+# File Description...: uses regex patterns for find specific data types from an image's extracted text
 #######################################################################################################################
 
 # imports
-import re
+import re   # to allow the use of regular expression pattern matching
 
 def extract_contact_info(text):
     # Normalize OCR quirks
