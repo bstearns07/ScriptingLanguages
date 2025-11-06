@@ -1,11 +1,30 @@
+<!--
+########################################################################################################################
+# Title..............: Capstone Final Project - Ocular Recognition
+# Author.............: Ben Stearns
+# Date...............: 10-30-2025
+# Purpose............: The purpose of this program is to:
+#                       - Scan an image of a card
+#                       - Extracts the text using OCR
+# File Description...: defines a base html template to be used for all web pages for the app
+#######################################################################################################################
+-->
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head class="table table-bordered">
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <title>{{title}}</title>
 </head>
-<body>
-    <h3>{{title}}</h3>
+<body class="container">
+    <div class="row">
+        <div class="col">
+            <h3>{{title}}</h3>
+        </div>
+    </div>
+
     {% block body %}
     {% endblock %}
 </body>

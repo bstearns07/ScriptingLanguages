@@ -18,5 +18,5 @@ def index():
 if __name__ == "__main__":
     # run Flasks built-in web server and pass the web app code to it
     # run in debugging mode: Flask watches to saved changes in code and restarts the app automatically
-    webbrowser.open("http://127.0.0.1:8000")
+    # webbrowser.open("http://127.0.0.1:8000")
     app.run(debug=True, port=8000)
