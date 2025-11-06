@@ -15,7 +15,7 @@ import os
 
 from preprossing import preprocess_image    # for use of the preprocess_image() function
 from extractor import extract_text          # for use of the extract_text() function
-from utils import extract_contact_info      # for use of the extract_contact_info() function
+from utils import extract_card_info      # for use of the extract_contact_info() function
 
 images_dir = "samples"
 
@@ -24,12 +24,15 @@ def main():
         image_filepath = os.path.join(images_dir, file)
         processed_image = preprocess_image(image_filepath)
         text = extract_text(processed_image)
-        info = extract_contact_info(text)
+        card = extract_card_info(text)
+
+        processed_image.save("tesseractImage.png")
 
         print("===Extracted Text===")
         print(text)
         print("===Image Information===")
-        print(info)
+        print(card.name, card.attack, card.defense, card.type, card.color)
+        print(card.description)
         print()
 
 if __name__ == "__main__":

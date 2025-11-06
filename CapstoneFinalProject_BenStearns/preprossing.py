@@ -8,39 +8,24 @@
 # File Description...: to enhance images so ocular recognition can read text more accurately
 #######################################################################################################################
 
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps
-import numpy as np
+from PIL import Image, ImageEnhance, ImageOps, ImageFilter
 
 def preprocess_image(image_path):
     # Load image
     image = Image.open(image_path)
 
-    # Convert to grayscale
+    # Convert to grayscale (Tesseract prefers grayscale over color)
     gray = image.convert("L")
 
-    # Resize to improve OCR accuracy
-    scale = 1.5
-    new_size = (int(gray.width * scale), int(gray.height * scale))
-    gray = gray.resize(new_size, Image.LANCZOS)
+    # Auto-adjust contrast and brightness to normalize lighting
+    gray = ImageOps.autocontrast(gray, cutoff=1)
+    gray = ImageEnhance.Contrast(gray).enhance(2.0)
+    gray = ImageEnhance.Brightness(gray).enhance(1.2)
 
-    # Increase contrast and brightness slightly
-    enhancer_contrast = ImageEnhance.Contrast(gray)
-    gray = enhancer_contrast.enhance(1.5)  # contrast factor
+    # Sharpen text edges slightly
+    gray = gray.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
 
-    enhancer_brightness = ImageEnhance.Brightness(gray)
-    gray = enhancer_brightness.enhance(1.1)  # brightness factor
+    # Optional: slight denoise (only if you have lots of speckles)
+    # gray = gray.filter(ImageFilter.MedianFilter(size=3))
 
-    # Convert to NumPy for thresholding (like cv2 adaptive threshold)
-    np_img = np.array(gray)
-
-    # Simple adaptive threshold approximation
-    mean = np_img.mean()
-    binary = np.where(np_img > mean - 15, 255, 0).astype(np.uint8)
-
-    # Back to Pillow for saving/processing
-    processed = Image.fromarray(binary)
-
-    # Optional: denoise slightly
-    processed = processed.filter(ImageFilter.MedianFilter(size=3))
-
-    return processed
+    return gray
