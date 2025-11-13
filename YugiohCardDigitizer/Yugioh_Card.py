@@ -1,13 +1,15 @@
 class YugiohCard:
     # constructor for instantiating a Yugioh card object
-    def __init__(self, name, description, attack, defense, type, color):
+    def __init__(self, name, card_type, description, attribute="=", monster_type="=", attack="=", defense="="):
         self.name = name
         self.description = description
         self.attack = attack
         self.defense = defense
-        self.type = type
-        self.color = color
+        self.card_type = card_type
+        self.attribute = attribute
+        self.monster_type = monster_type
 
 def __repr__(self):
-    return (f"YugiohCard(name='{self.name}', type='{self.type}', "
-            f"ATK={self.attack}, DEF={self.defense}, color='{self.color}')")
+    return (f"YugiohCard(name='{self.name}', card_type='{self.card_type}', description='{self.description}', "
+            f"attribute='{self.attribute}, monster_type='{self.monster_type}', "
+            f"ATK={self.attack}, DEF={self.defense}')")

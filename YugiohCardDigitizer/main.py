@@ -12,11 +12,11 @@ def index():
     # imports a html file stored in the "templates" folder
     return render_template(
         "index.html",
-        title="Yugioh Card Library",)
+        title="Yugioh Card Digitizer",)
 
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":
     # run Flasks built-in web server and pass the web app code to it
     # run in debugging mode: Flask watches to saved changes in code and restarts the app automatically
-    # webbrowser.open("http://127.0.0.1:8000")
+    webbrowser.open("http://127.0.0.1:8000")
     app.run(debug=True, port=8000)
