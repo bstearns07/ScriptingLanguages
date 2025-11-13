@@ -13,11 +13,15 @@
 # imports
 import os
 
+from PIL import Image, ImageEnhance, ImageOps, ImageFilter
+import sqlite3
+import DBcm
 from preprossing import preprocess_image    # for use of the preprocess_image() function
 from extractor import extract_text          # for use of the extract_text() function
 from utils import extract_card_info      # for use of the extract_contact_info() function
 
 images_dir = "samples"
+db_details ="Cards.sqlite3"
 
 def main():
     for file in os.listdir(images_dir):
@@ -34,6 +38,11 @@ def main():
         print(card.name, card.attack, card.defense, card.type, card.color)
         print(card.description)
         print()
+
+        with DBcm.UseDatabase(db_details) as db:
+            db.execute("pragma table_list")
+            results = db.fetchall() #returns most recent command executed
+            print(f"Results: {results}")
 
 if __name__ == "__main__":
     main()
