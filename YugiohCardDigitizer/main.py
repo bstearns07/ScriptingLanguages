@@ -14,9 +14,17 @@ def index():
         "index.html",
         title="Yugioh Card Digitizer",)
 
+# define a function for handling requests to view the library
+@app.get("/library")
+def library():
+    return render_template(
+        "library.html",
+        title="Yugioh Card Library",
+    )
+
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":
-    # run Flasks built-in web server and pass the web app code to it
+    # run Flask's built-in web server and pass the web app code to it
     # run in debugging mode: Flask watches to saved changes in code and restarts the app automatically
     webbrowser.open("http://127.0.0.1:8000")
     app.run(debug=True, port=8000)
