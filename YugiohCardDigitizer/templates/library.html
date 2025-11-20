@@ -12,5 +12,30 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <p>working</p>
+    <figure class="col">
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Card Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for card in cards %}
+                    <tr>
+                        <td>Card Image</td>
+                        <td>{{ card.name }}</td>
+                        <td>{{ card.description }}</td>
+                        <td><a href="#" class="btn btn-info">View</a></td>
+                        <td><a href="#" class="btn btn-primary">Edit</a></td>
+                        <td><a href="#" class="btn btn-danger">Delete</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </figure>
 {% endblock %}

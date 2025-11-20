@@ -4,90 +4,97 @@ import DBcm
 
 db_details ="Cards.sqlite3"
 insert_SQL = """
-    INSERT INTO cards (name, attack, defense, description, type, color)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 """
 
 with DBcm.UseDatabase(db_details) as db:
     SQL = """create table if not exists cards (
             id integer not null primary key autoincrement,
             name varchar(32) not null,
+            card_type varchar(32) not null,
+            monster_type varchar(32),  
+            description varchar(500) not null,  
             attack integer,
             defense integer,
-            description varchar(500) not null,
-            type varchar(32),
-            color varchar(32) not null      
+            attribute varchar(32) not null
         )"""
     db.execute(SQL)
     blue_eyes = YugiohCard(
         name="Blue-Eyes White Dragon",
+        card_type="Monster",
+        monster_type="Dragon",
         description="This legendary dragon is a powerful engine of destruction.",
         attack=3000,
         defense=2500,
-        card_type="Monster",
-        monster_type="Dragon",
         attribute="Light"
     )
     dark_magician = YugiohCard(
         name="Dark Magician",
+        card_type="Monster",
+        monster_type="Spellcaster",
         description="The ultimate wizard in terms of attack and defense.",
         attack=2500,
         defense=2000,
-        monster_type="Spellcaster",
-        card_type="Monster",
         attribute="Dark"
     )
     raigeki = YugiohCard(
         name="Raigeki",
-        description="Destroy all Monsters you opponent controls.",
         card_type="Spell",
+        monster_type="-",
+        description="Destroy all Monsters your opponent controls.",
         attack="-",
         defense="-",
-        monster_type="-"
+        attribute="-"
     )
     mirror_force = YugiohCard(
         name="Mirror Force",
-        description="When an opponent's monster declares an attack: Destroy all your opponent's Attack Position monsters.",
         card_type="Trap",
+        monster_type="-",
+        description="When an opponent's monster declares an attack: Destroy all your opponent's Attack Position monsters.",
         attack="-",
         defense="-",
-        monster_type="-"
+        attribute="-"
     )
 
     db.execute(insert_SQL, (
         blue_eyes.name,
+        blue_eyes.card_type,
+        blue_eyes.monster_type,
+        blue_eyes.description,
         blue_eyes.attack,
         blue_eyes.defense,
-        blue_eyes.description,
         blue_eyes.attribute,
-        blue_eyes.card_type
     ))
 
     db.execute(insert_SQL, (
         dark_magician.name,
+        dark_magician.card_type,
+        dark_magician.monster_type,
+        dark_magician.description,
         dark_magician.attack,
         dark_magician.defense,
-        dark_magician.description,
         dark_magician.attribute,
-        dark_magician.card_type
     ))
 
     db.execute(insert_SQL, (
         raigeki.name,
-        raigeki.description,
         raigeki.card_type,
-        raigeki.attribute,
+        raigeki.monster_type,
+        raigeki.description,
         raigeki.attack,
-        raigeki.defense
+        raigeki.defense,
+        raigeki.attribute,
     ))
 
     db.execute(insert_SQL, (
         mirror_force.name,
-        mirror_force.description,
         mirror_force.card_type,
-        mirror_force.attribute,
+        mirror_force.monster_type,
+        mirror_force.description,
         mirror_force.attack,
-        mirror_force.defense
+        mirror_force.defense,
+        mirror_force.attribute,
     ))
 
     db.execute("SELECT * FROM cards")
