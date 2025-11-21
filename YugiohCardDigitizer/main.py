@@ -67,6 +67,16 @@ def library():
         cards=cards
     )
 
+# define a function to handle get requests to view a card's details
+@app.get("/view/<int:card_id>")
+def view_card(card_id):
+    db_details = "Cards.sqlite3"
+    with DBcm.UseDatabase(db_details) as db:
+        query = "SELECT * FROM cards WHERE id = ?"
+        db.execute(query, (card_id,))
+        card = db.fetchone()
+    return render_template("view_card.html", card=card)
+
 # define a function for handling get requests for editing a card in the database
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):

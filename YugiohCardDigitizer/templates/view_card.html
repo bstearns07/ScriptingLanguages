@@ -1,5 +1,61 @@
 {% extends "base.html" %}
 
-{% body block %}
+{% block body %}
+<div class="col">
+    {% if card.image_filename %}
+    <div class="row mb-3">
+        <img src="/static/images/cards/{{ card.image_filename }}"
+             class="img-thumbnail mb-3"
+             style="max-width:200px;">
+    </div>
+    {% endif %}
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Card Type</td>
+                <td>Monster Type</td>
+                <td>Description</td>
+                <td>Attack</td>
+                <td>Defense</td>
+                <td>Attribute</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Name</td>
+                <td>{{ card.name }}</td>
+            </tr>
+            <tr>
+                <td>Card Type</td>
+                <td>{{ card.card_type }}</td>
+            </tr>
+            {% if card.monster_type != '-' %}
+            <tr>
+                <td>Monster Type</td>
+                <td>{{ card.monster_type }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Description</td>
+                <td>{{ card.description }}</td>
+            </tr>
+            {% if card.card_type == "Monster" %}
+            <tr>
+                <td>Attack</td>
+                <td>{{ card.attack }}</td>
+            </tr>
+            <tr>
+                <td>Defense</td>
+                <td>{{ card.defense }}</td>
+            </tr>
+            <tr>
+                <td>Attribute</td>
+                <td>{{ card.attribute }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
 
+</div>
 {% endblock %}
