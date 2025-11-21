@@ -72,9 +72,26 @@ def library():
 def view_card(card_id):
     db_details = "Cards.sqlite3"
     with DBcm.UseDatabase(db_details) as db:
-        query = "SELECT * FROM cards WHERE id = ?"
+        query = "SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename FROM cards WHERE id = ?"
         db.execute(query, (card_id,))
-        card = db.fetchone()
+        row = db.fetchone()
+
+    if not row:
+        return "Card not found", 404
+
+    # Convert tuple to dictionary
+    card = {
+        "id": row[0],
+        "name": row[1],
+        "card_type": row[2],
+        "monster_type": row[3],
+        "description": row[4],
+        "attack": row[5],
+        "defense": row[6],
+        "attribute": row[7],
+        "image_filename": row[8] if len(row) > 8 else None
+    }
+
     return render_template("view_card.html", card=card)
 
 # define a function for handling get requests for editing a card in the database
