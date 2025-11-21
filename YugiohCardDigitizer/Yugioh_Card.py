@@ -1,6 +1,6 @@
 class YugiohCard:
     # constructor for instantiating a Yugioh card object
-    def __init__(self, name, card_type, description, attribute="=", monster_type="=", attack="=", defense="="):
+    def __init__(self, name, card_type, description, attribute="-", monster_type="-", attack="-", defense="=",image_filename="-"):
         self.name = name
         self.description = description
         self.attack = attack
@@ -8,8 +8,9 @@ class YugiohCard:
         self.card_type = card_type
         self.attribute = attribute
         self.monster_type = monster_type
+        self.image_filename = image_filename
 
 def __repr__(self):
     return (f"YugiohCard(name='{self.name}', card_type='{self.card_type}', description='{self.description}', "
             f"attribute='{self.attribute}, monster_type='{self.monster_type}', "
-            f"ATK={self.attack}, DEF={self.defense}')")
+            f"ATK={self.attack}, DEF={self.defense}', image_filename='{self.image_filename}')")

@@ -1,11 +1,18 @@
+import os
 from Yugioh_Card import YugiohCard
 import sqlite3
 import DBcm
 
-db_details ="Cards.sqlite3"
+db_details = "Cards.sqlite3"
+
+# --- NEW: Delete existing database first ---
+if os.path.exists(db_details):
+    os.remove(db_details)
+    print("Old Cards.sqlite3 deleted. Rebuilding database...\n")
+
 insert_SQL = """
-    INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 """
 
 with DBcm.UseDatabase(db_details) as db:
@@ -17,9 +24,11 @@ with DBcm.UseDatabase(db_details) as db:
             description varchar(500) not null,  
             attack integer,
             defense integer,
-            attribute varchar(32) not null
+            attribute varchar(32),
+            image_filename varchar(500)
         )"""
     db.execute(SQL)
+
     blue_eyes = YugiohCard(
         name="Blue-Eyes White Dragon",
         card_type="Monster",
@@ -27,8 +36,10 @@ with DBcm.UseDatabase(db_details) as db:
         description="This legendary dragon is a powerful engine of destruction.",
         attack=3000,
         defense=2500,
-        attribute="Light"
+        attribute="Light",
+        image_filename="blue_eyes.png"
     )
+
     dark_magician = YugiohCard(
         name="Dark Magician",
         card_type="Monster",
@@ -36,8 +47,10 @@ with DBcm.UseDatabase(db_details) as db:
         description="The ultimate wizard in terms of attack and defense.",
         attack=2500,
         defense=2000,
-        attribute="Dark"
+        attribute="Dark",
+        image_filename="dark_magician.png"
     )
+
     raigeki = YugiohCard(
         name="Raigeki",
         card_type="Spell",
@@ -45,8 +58,10 @@ with DBcm.UseDatabase(db_details) as db:
         description="Destroy all Monsters your opponent controls.",
         attack="-",
         defense="-",
-        attribute="-"
+        attribute="-",
+        image_filename="raigeki.png"
     )
+
     mirror_force = YugiohCard(
         name="Mirror Force",
         card_type="Trap",
@@ -54,51 +69,24 @@ with DBcm.UseDatabase(db_details) as db:
         description="When an opponent's monster declares an attack: Destroy all your opponent's Attack Position monsters.",
         attack="-",
         defense="-",
-        attribute="-"
+        attribute="-",
+        image_filename="mirror_force.png"
     )
 
-    db.execute(insert_SQL, (
-        blue_eyes.name,
-        blue_eyes.card_type,
-        blue_eyes.monster_type,
-        blue_eyes.description,
-        blue_eyes.attack,
-        blue_eyes.defense,
-        blue_eyes.attribute,
-    ))
+    # Insert sample cards
+    for card in (blue_eyes, dark_magician, raigeki, mirror_force):
+        db.execute(insert_SQL, (
+            card.name,
+            card.card_type,
+            card.monster_type,
+            card.description,
+            card.attack,
+            card.defense,
+            card.attribute,
+            card.image_filename
+        ))
 
-    db.execute(insert_SQL, (
-        dark_magician.name,
-        dark_magician.card_type,
-        dark_magician.monster_type,
-        dark_magician.description,
-        dark_magician.attack,
-        dark_magician.defense,
-        dark_magician.attribute,
-    ))
-
-    db.execute(insert_SQL, (
-        raigeki.name,
-        raigeki.card_type,
-        raigeki.monster_type,
-        raigeki.description,
-        raigeki.attack,
-        raigeki.defense,
-        raigeki.attribute,
-    ))
-
-    db.execute(insert_SQL, (
-        mirror_force.name,
-        mirror_force.card_type,
-        mirror_force.monster_type,
-        mirror_force.description,
-        mirror_force.attack,
-        mirror_force.defense,
-        mirror_force.attribute,
-    ))
-
+    # Show results
+    print("Database successfully created\n")
     db.execute("SELECT * FROM cards")
     print(f"Cards in table: {db.fetchall()}")
-    db.execute("pragma table_list")
-    results = db.fetchall()  # returns most recent command executed
-    print(f"Results: {results}")

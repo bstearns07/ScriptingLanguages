@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block body %}
+<form method="post">
+
+    <div class="mb-3">
+        <label>Name</label>
+        <input type="text" class="form-control" name="name"
+               value="{{ card.name if card else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Card Type</label>
+        <input type="text" class="form-control" name="card_type"
+               value="{{ card.card_type if card else '' }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label>Monster Type</label>
+        <input type="text" class="form-control" name="monster_type"
+               value="{{ card.monster_type if card else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea class="form-control" name="description" required>{{ card.description if card else '' }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Attack</label>
+        <input type="text" class="form-control" name="attack"
+               value="{{ card.attack if card else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label>Defense</label>
+        <input type="text" class="form-control" name="defense"
+               value="{{ card.defense if card else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label>Attribute</label>
+        <input type="text" class="form-control" name="attribute"
+               value="{{ card.attribute if card else '' }}" required>
+    </div>
+
+    <button class="btn btn-success" type="submit">
+        {{ "Update" if card else "Add Card" }}
+    </button>
+
+</form>
+
+{% endblock %}
