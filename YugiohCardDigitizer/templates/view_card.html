@@ -3,17 +3,15 @@
 {% block body %}
 <div class="col">
     {% if card.image_filename %}
-    <div class="row mb-3">
+    <div class="row mb-3 text-center">
         <img src="/static/images/cards/{{ card.image_filename }}"
-             class="img-thumbnail mb-3"
+             class="img-thumbnail mb-3 mx-auto d-block"
              style="max-width:200px;">
     </div>
     {% endif %}
     <table class="table table-bordered table-striped">
         <thead>
-            <tr>
-                <td>{{ card.name }}</td>
-            </tr>
+            <tr>{{ card.name }}</tr>
         </thead>
         <tbody>
             <tr>
@@ -46,6 +44,8 @@
             {% endif %}
         </tbody>
     </table>
-
+    <div class="row justify-content-center" style="max-width: 200px;">
+        <a href="/library" class="btn btn-primary">Back</a>
+    </div>
 </div>
 {% endblock %}

@@ -20,12 +20,12 @@ def retrieve_library():
         latest_id = db.fetchone()[0]
 
     # If session has no cache or database changed → refresh cache
-    if "cards" not in session or session.get("cards_latest_id") != latest_id:
+    # if "cards" not in session or session.get("cards_latest_id") != latest_id:
         with DBcm.UseDatabase(db_details) as db:
             SQL = """
-                SELECT id, name, card_type, monster_type, description, attack, defense, attribute
+                SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename
                 FROM cards
-                ORDER BY id
+                ORDER BY name
             """
             db.execute(SQL)
             results = db.fetchall()
@@ -42,6 +42,7 @@ def retrieve_library():
                 "attack": row[5],
                 "defense": row[6],
                 "attribute": row[7],
+                "image_filename": row[8],
             })
 
         # Save new cache + new database state

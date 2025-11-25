@@ -1,6 +1,7 @@
 class YugiohCard:
     # constructor for instantiating a Yugioh card object
-    def __init__(self, name, card_type, description, attribute="-", monster_type="-", attack="-", defense="=",image_filename="-"):
+    def __init__(self,name,card_type,description,monster_type=None,attribute=None,
+                 attack=None,defense=None,image_filename=None):
         self.name = name
         self.description = description
         self.attack = attack

@@ -16,7 +16,7 @@
         <table class="row table table-bordered table-striped table-hover">
             <thead>
                 <tr>
-                    <th>Card Image</th>
+                    <th></th>
                     <th>Name</th>
                     <th>Description</th>
                     <th></th>
@@ -27,7 +27,9 @@
             <tbody>
                 {% for card in cards %}
                     <tr>
-                        <td>Card Image</td>
+                        <td><img src="/static/images/cards/{{ card.image_filename }}"
+                            class="img-thumbnail mb-3 mx-auto d-block"
+                            style="max-width:200px;">"></td>
                         <td>{{ card.name }}</td>
                         <td>{{ card.description }}</td>
                         <td><a href="{{ url_for('view_card', card_id=card.id) }}" class="btn btn-info">View</a></td>
