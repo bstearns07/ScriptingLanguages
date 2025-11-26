@@ -13,7 +13,7 @@
 
 {% block body %}
     <figure class="col">
-        <table class="row table table-bordered table-striped table-hover">
+        <table class="table table-bordered table-striped table-hover">
             <thead>
                 <tr>
                     <th></th>
@@ -29,7 +29,7 @@
                     <tr>
                         <td><img src="/static/images/cards/{{ card.image_filename }}"
                             class="img-thumbnail mb-3 mx-auto d-block"
-                            style="max-width:200px;">"></td>
+                            style="max-width:200px;"></td>
                         <td>{{ card.name }}</td>
                         <td>{{ card.description }}</td>
                         <td><a href="{{ url_for('view_card', card_id=card.id) }}" class="btn btn-info">View</a></td>

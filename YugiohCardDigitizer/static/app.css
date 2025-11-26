@@ -26,6 +26,12 @@ html {
     border-radius: 20px;
 }
 
+.form-label-strong {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #333;
+}
+
 .menu-card:nth-child(2) {
     background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
 }
@@ -48,11 +54,4 @@ html {
     background-image: url("images/background.png");
     background-repeat: no-repeat;
     background-size: cover;
-
 }
-.tale {
-    --bs-table-bg: transparent !important;
-    background-color: transparent !important;
-    color: white;
-}
-

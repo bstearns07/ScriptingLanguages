@@ -1,14 +1,23 @@
 import os
-
+from werkzeug.utils import secure_filename
 from flask import Flask, session, render_template, request, redirect
 import webbrowser
 import DBcm
+from Yugioh_Card import YugiohCard
 
 # create a flask object for the app
 # use the dunder name to associate the web app with the code's current namespace as required by Flask
 app = Flask(__name__)
 # enable app to work with session by creating a key that flask uses to encrypt cookies sent to browser
 app.secret_key = "supersecretcantguessme"
+
+UPLOAD_FOLDER = "static/images/cards"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # define function for retrieving all cards in the database and storing in session
 def retrieve_library():
@@ -139,34 +148,72 @@ def edit_card(card_id):
     return redirect("/library")
 
 # define a function for handling POST requests for posting updated information of a card to the database
-@app.post("/add")
-def add_card_post():
-    db_details = "Cards.sqlite3"
-    form = request.form
-
-    with DBcm.UseDatabase(db_details) as db:
-        SQL = """
-            INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """
-        db.execute(SQL, (
-            form["name"],
-            form["card_type"],
-            form["monster_type"],
-            form["description"],
-            form["attack"],
-            form["defense"],
-            form["attribute"]
-        ))
-
-    # Clear session cache
-    session.pop("cards", None)
-
-    return redirect("/library")
+# @app.post("/add")
+# def add_card_post():
+#     db_details = "Cards.sqlite3"
+#     form = request.form
+#
+#     with DBcm.UseDatabase(db_details) as db:
+#         SQL = """
+#             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute)
+#             VALUES (?, ?, ?, ?, ?, ?, ?)
+#         """
+#         db.execute(SQL, (
+#             form["name"],
+#             form["card_type"],
+#             form["monster_type"],
+#             form["description"],
+#             form["attack"],
+#             form["defense"],
+#             form["attribute"]
+#         ))
+#
+#     # Clear session cache
+#     session.pop("cards", None)
+#
+#     return redirect("/library")
 
 # define function for handling requests to add a new card to the database
-@app.get("/add")
+@app.route("/add", methods=["GET", "POST"])
 def add_card():
+    db_details = "Cards.sqlite3"
+    if request.method == "POST":
+        name = request.form["name"]
+        card_type = request.form["card_type"]
+        description = request.form["description"]
+        monster_type = request.form.get("monster_type")
+        attack = request.form.get("attack")
+        defense = request.form.get("defense")
+        attribute = request.form.get("attribute")
+
+        # Handle file
+        file = request.files.get("card_image")
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        else:
+            filename = None
+
+        # Save to database
+        with DBcm.UseDatabase(db_details) as db:
+            SQL = """
+            INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            db.execute(SQL, (
+                name,
+                card_type,
+                monster_type,
+                description,
+                attack,
+                defense,
+                attribute,
+                filename
+            ))
+
+        # Clear session cache
+        session.pop("cards", None)
+        return redirect("/")
     return render_template(
         "add_edit.html",
         title="Add Card",
