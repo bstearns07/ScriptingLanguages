@@ -20,6 +20,19 @@
     <title>{{title}}</title>
 </head>
 <body class="container text-center">
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <div class="mx-auto">
         <div class="col">
             <h3>{{title}}</h3>

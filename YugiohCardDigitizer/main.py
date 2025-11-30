@@ -1,6 +1,6 @@
 import os
 from werkzeug.utils import secure_filename
-from flask import Flask, session, render_template, request, redirect
+from flask import Flask, session, render_template, request, redirect, flash, url_for
 import webbrowser
 import DBcm
 from Yugioh_Card import YugiohCard
@@ -8,7 +8,7 @@ from Yugioh_Card import YugiohCard
 # create a flask object for the app
 # use the dunder name to associate the web app with the code's current namespace as required by Flask
 app = Flask(__name__)
-# enable app to work with session by creating a key that flask uses to encrypt cookies sent to browser
+# enable app to work with session and flash msg's by creating a key that flask uses to encrypt cookies sent to browser
 app.secret_key = "supersecretcantguessme"
 
 UPLOAD_FOLDER = "static/images/cards"
@@ -145,7 +145,8 @@ def edit_card(card_id):
     # Clear the cached library so it refreshes
     session.pop("cards", None)
 
-    return redirect("/library")
+    flash("Card successfully updated!", "success")
+    return redirect(url_for("library"))
 
 # define a function for handling POST requests for posting updated information of a card to the database
 # @app.post("/add")
@@ -213,7 +214,8 @@ def add_card():
 
         # Clear session cache
         session.pop("cards", None)
-        return redirect("/")
+        flash("Card successfully added!", "success")
+        return redirect(url_for("index"))
     return render_template(
         "add_edit.html",
         title="Add Card",
@@ -254,7 +256,7 @@ def delete_card(card_id):
         SQL = "DELETE FROM cards WHERE id = ?"
         db.execute(SQL, (card_id,))
 
-    # Clear cached session list if you use one
+    # Clear cached session list
     session.pop("cards", None)
 
     # Delete image file if present
@@ -263,7 +265,8 @@ def delete_card(card_id):
         if os.path.exists(filepath):
             os.remove(filepath)
 
-    return redirect("/library")
+    flash("Card successfully deleted", "danger")
+    return redirect(url_for("library"))
 
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":

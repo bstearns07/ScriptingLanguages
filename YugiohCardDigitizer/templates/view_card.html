@@ -18,7 +18,7 @@
                 <td>Card Type</td>
                 <td>{{ card.card_type }}</td>
             </tr>
-            {% if card.monster_type != '-' %}
+            {% if card.monster_type != '' %}
             <tr>
                 <td>Monster Type</td>
                 <td>{{ card.monster_type }}</td>
@@ -45,7 +45,7 @@
         </tbody>
     </table>
     <div class="row justify-content-center" style="max-width: 200px;">
-        <a href="/library" class="btn btn-primary">Back</a>
+        <a href="javascript:history.back()" class="btn btn-primary">Back</a>
     </div>
 </div>
 {% endblock %}
