@@ -8,12 +8,20 @@
 
 from PIL import Image, ImageEnhance, ImageOps, ImageFilter  # for image manipulation
 
+def binarize(image, threshold=150):
+    return image.point(lambda x: 0 if x < threshold else 255, '1')
+
 def preprocess_image(image_path):
     # Load image
     image = Image.open(image_path)
 
     # Convert to grayscale (Tesseract prefers grayscale over color)
     gray = image.convert("L")
+
+    # gray = gray.resize((gray.width * 2, gray.height * 2), Image.LANCZOS)
+    # gray = binarize(gray, threshold=140)  # tweak threshold for best results
+    # gray = gray.filter(ImageFilter.MedianFilter(size=3))
+    # gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=100, threshold=1))
 
     # Auto-adjust contrast and brightness to normalize lighting
     gray = ImageOps.autocontrast(gray, cutoff=1)

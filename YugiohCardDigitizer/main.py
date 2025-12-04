@@ -300,5 +300,6 @@ def delete_card(card_id):
 if __name__ == "__main__":
     # run Flask's built-in web server and pass the web app code to it
     # run in debugging mode: Flask watches to saved changes in code and restarts the app automatically
-    webbrowser.open("http://127.0.0.1:8000")
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true": # sets the Flash environment variable to detect only the 1st run
+        webbrowser.open("http://127.0.0.1:8000") # open the app in the browser
     app.run(debug=True, port=8000)

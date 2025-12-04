@@ -24,8 +24,13 @@ def main():
     for file in os.listdir(images_dir):
         image_filepath = os.path.join(images_dir, file)     # defines the full filepath to the image
         processed_image = preprocess_image(image_filepath)  # prepare the image for tesseract and store
+
         text = extract_text(processed_image)                # extract all text from the card
-        card = extract_card_info(text)                      # use the extracted text to create a card
+        card = extract_card_info(text)  # use the extracted text to create a card
+        # image = Image.open(image_filepath)
+        # text = extract_text(image)
+        # card = extract_card_info(text)
+
 
         processed_image.save("tesseractImage.png")          # to save the processed image to debug what tesseract sees
 
@@ -33,7 +38,7 @@ def main():
         print("===Extracted Text===")
         print(text)
         print("===Image Information===")
-        print(card.name, card.attack, card.defense, card.type, card.color)
+        print(card.name, card.attack, card.defense)
         print(card.description)
         print()
 
