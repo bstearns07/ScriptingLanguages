@@ -1,14 +1,12 @@
-########################################################################################################################
-# Title.............: Capstone Final Project - Ocular Recognition
-# Author............: Ben Stearns
-# Date..............: 10-30-2025
-# Purpose...........: The purpose of this program is to:
-#                       - Scan an image of a card
-#                       - Extracts the text using OCR
-# File Description...: to enhance images so ocular recognition can read text more accurately
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: to enhance images so ocular recognition can read text more accurately
 #######################################################################################################################
 
-from PIL import Image, ImageEnhance, ImageOps, ImageFilter
+from PIL import Image, ImageEnhance, ImageOps, ImageFilter  # for image manipulation
 
 def preprocess_image(image_path):
     # Load image
@@ -24,8 +22,5 @@ def preprocess_image(image_path):
 
     # Sharpen text edges slightly
     gray = gray.filter(ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3))
-
-    # Optional: slight denoise (only if you have lots of speckles)
-    # gray = gray.filter(ImageFilter.MedianFilter(size=3))
 
     return gray

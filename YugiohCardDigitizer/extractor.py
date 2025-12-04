@@ -1,12 +1,10 @@
-########################################################################################################################
-# Title..............: Capstone Final Project - Ocular Recognition
-# Author.............: Ben Stearns
-# Date...............: 10-30-2025
-# Purpose............: The purpose of this program is to:
-#                       - Scan an image of a card
-#                       - Extracts the text using OCR
-# File Description...: defines a function that uses pytesseract.image_to_string() to
-#                      extract text from a preprocessed image
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description.......: defines a function that uses pytesseract.image_to_string() to
+#                          extract text from a preprocessed image
 #######################################################################################################################
 
 import pytesseract  # to allow the use of pytesseract.image_to_string() to extract text from an image

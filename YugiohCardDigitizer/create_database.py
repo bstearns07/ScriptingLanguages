@@ -1,3 +1,11 @@
+#####################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: Running this file recreates the database with seed data if needed
+#####################################################################################################################
+
 import os
 from Yugioh_Card import YugiohCard
 import sqlite3

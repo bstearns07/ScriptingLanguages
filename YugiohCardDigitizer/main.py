@@ -1,35 +1,47 @@
-import os
-from werkzeug.utils import secure_filename
-from flask import Flask, session, render_template, request, redirect, flash, url_for
-import webbrowser
-import DBcm
+#####################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: This file defines the route functionality and main entrypoint for launching the application
+#####################################################################################################################
+
+# imports
+import os                                                                               # for file operations
+from werkzeug.utils import secure_filename                                              # to sanitizing filenames
+from flask import Flask, session, render_template, request, redirect, flash, url_for    # for webapp functionality
+import webbrowser                                                                       # for launching the app
+import DBcm                                                                             # for database functionality
 from Yugioh_Card import YugiohCard
 
-# create a flask object for the app
-# use the dunder name to associate the web app with the code's current namespace as required by Flask
-app = Flask(__name__)
-# enable app to work with session and flash msg's by creating a key that flask uses to encrypt cookies sent to browser
-app.secret_key = "supersecretcantguessme"
-
-UPLOAD_FOLDER = "static/images/cards"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
+# main program variables
+app = Flask(__name__)                               # defines main app object associated with code's current namespace
+app.secret_key = "supersecretcantguessme"           # defines a key for encrypting session data. Required for Flask
+UPLOAD_FOLDER = "static/images/cards"               # defines the fil path to the folder for storing uploaded images
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}  # defines what images extensions are allowed to be uploaded
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+#######################################################################################################################
+# Function: checks whether an uploaded filename has an allowed file extension
+# Returns.: true if the image has an allowed extension. Otherwise returns false
+#######################################################################################################################
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# define function for retrieving all cards in the database and storing in session
+#######################################################################################################################
+# Function: retrieves all cards in the database and storing in session
+# Returns.: session data for all cards in the database
+#######################################################################################################################
 def retrieve_library():
     db_details = "Cards.sqlite3"
 
-    # 1. Check if data in session is still valid
+    # 1. Check if data in session is still valid by retrieving the highest id number in the database (cheap query)
     with DBcm.UseDatabase(db_details) as db:
-        db.execute("SELECT MAX(id) FROM cards")
+        db.execute("SELECT MAX(id) FROM cards") #
         latest_id = db.fetchone()[0]
 
-    # If session has no cache or database changed → refresh cache
-    # if "cards" not in session or session.get("cards_latest_id") != latest_id:
+    # If session has no cache or the card with the highest id isn't the same as the last fetch, refresh cache
+    if "cards" not in session or session.get("cards_latest_id") != latest_id:
         with DBcm.UseDatabase(db_details) as db:
             SQL = """
                 SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename
@@ -60,32 +72,46 @@ def retrieve_library():
 
     return session["cards"]
 
+#######################################################################################################################
+# Function: route that handles get requests for the home page
+# Returns.: index.html
+#######################################################################################################################
 @app.get("/")
 def index():
-    # imports a html file stored in the "templates" folder
+    # renders the index.html template with required data
     return render_template(
         "index.html",
-        title="Yugioh Card Digitizer",)
+        title="Yugioh Card Digitizer",) # the title used in the head element for the page
 
-# define a function for handling requests to view the library
+#######################################################################################################################
+# Function: handles get requests to view all cards in the database
+# Returns.: library.html
+#######################################################################################################################
 @app.get("/library")
 def library():
     cards = retrieve_library()
     return render_template(
         "library.html",
         title="Your Library",
-        cards=cards
+        cards=cards # the session data for all cards in the datbase
     )
 
-# define a function to handle get requests to view a card's details
+#######################################################################################################################
+# Function   : handles get requests to view a single card's full information
+# Parameters : the card's database id
+# Returns    : view_card.html
+#######################################################################################################################
 @app.get("/view/<int:card_id>")
 def view_card(card_id):
     db_details = "Cards.sqlite3"
+
+    # query the database to select the chosen card's id number
     with DBcm.UseDatabase(db_details) as db:
         query = "SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename FROM cards WHERE id = ?"
         db.execute(query, (card_id,))
         row = db.fetchone()
 
+    # if the card isn't found, return an error
     if not row:
         return "Card not found", 404
 
@@ -104,7 +130,11 @@ def view_card(card_id):
 
     return render_template("view_card.html", card=card)
 
-# define a function for handling get requests for editing a card in the database
+#######################################################################################################################
+# Function   : handles get and post requests to update a card's information in the database
+# Parameters : the card's database id
+# Returns    : add_edit.html
+#######################################################################################################################
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):
     db_details = "Cards.sqlite3"
@@ -148,36 +178,15 @@ def edit_card(card_id):
     flash("Card successfully updated!", "success")
     return redirect(url_for("library"))
 
-# define a function for handling POST requests for posting updated information of a card to the database
-# @app.post("/add")
-# def add_card_post():
-#     db_details = "Cards.sqlite3"
-#     form = request.form
-#
-#     with DBcm.UseDatabase(db_details) as db:
-#         SQL = """
-#             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute)
-#             VALUES (?, ?, ?, ?, ?, ?, ?)
-#         """
-#         db.execute(SQL, (
-#             form["name"],
-#             form["card_type"],
-#             form["monster_type"],
-#             form["description"],
-#             form["attack"],
-#             form["defense"],
-#             form["attribute"]
-#         ))
-#
-#     # Clear session cache
-#     session.pop("cards", None)
-#
-#     return redirect("/library")
-
-# define function for handling requests to add a new card to the database
+#######################################################################################################################
+# Function   : handles get and post requests for adding a new card to the database
+# Returns    : add_edit.html
+#######################################################################################################################
 @app.route("/add", methods=["GET", "POST"])
 def add_card():
     db_details = "Cards.sqlite3"
+
+    # if a post is made, parse the form's data into variables
     if request.method == "POST":
         name = request.form["name"]
         card_type = request.form["card_type"]
@@ -187,16 +196,19 @@ def add_card():
         defense = request.form.get("defense")
         attribute = request.form.get("attribute")
 
-        # Handle file
+        # Retrieve the card image uploaded by the user is they supplied one
         file = request.files.get("card_image")
+
+        # if the file exists and is an allowed extension, sanitize the filename and save to the upload folder
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         else:
             filename = None
 
-        # Save to database
+        # Save all data to the database
         with DBcm.UseDatabase(db_details) as db:
+            # placeholder query
             SQL = """
             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -212,29 +224,40 @@ def add_card():
                 filename
             ))
 
-        # Clear session cache
+        #Clear session cache so the app is forced to refresh it next time. Prevent errors in no cache by that key exists
         session.pop("cards", None)
+
+        # send a confirmation flash message back the return page and redirect back to home page
         flash("Card successfully added!", "success")
         return redirect(url_for("index"))
+
+    # otherwise, handle a simple get requst that returns a blank add/edit page
     return render_template(
         "add_edit.html",
         title="Add Card",
         card=None  # no card = adding mode
     )
 
-# defines a function for handling get requests to confirm deletion before deleting a card from the database
+#######################################################################################################################
+# Function   : handles get requests to delete a card from the database
+# Parameters : the card's database id
+# Returns    : view_card.html
+#######################################################################################################################
 @app.get("/delete/<int:card_id>")
 def confirm_delete(card_id):
     db_details = "Cards.sqlite3"
 
+    # retrieve the card to be deleted from the database to display to the user for confirmation
     with DBcm.UseDatabase(db_details) as db:
         SQL = "SELECT id, name, image_filename FROM cards WHERE id = ?"
         db.execute(SQL, (card_id,))
         card = db.fetchone()
 
+    # if the card doesn't exist in the database, just redirect back to the library page to prevent crashes
     if not card:
         return redirect("/library")
 
+    # parse only required data from the card to return back to confirm.html as a dictionary
     card_obj = {
         "id": card[0],
         "name": card[1],
@@ -243,11 +266,16 @@ def confirm_delete(card_id):
 
     return render_template("confirm_delete.html", card=card_obj)
 
-# define a functon to handle post request to delete a card from tbe database
+#######################################################################################################################
+# Function   : handles get requests to delete a card from the database
+# Parameters : the card's database id
+# Returns    : view_card.html
+#######################################################################################################################
 @app.post("/delete/<int:card_id>")
 def delete_card(card_id):
     db_details = "Cards.sqlite3"
 
+    # perform the database operation for selecting the chosen card from the database and actually deleting it
     with DBcm.UseDatabase(db_details) as db:
         SQL = "SELECT image_filename FROM cards WHERE id = ?"
         db.execute(SQL, (card_id,))

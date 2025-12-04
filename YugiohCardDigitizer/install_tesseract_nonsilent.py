@@ -1,3 +1,11 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: checks to see if tesseract is installed. If not, it downloads it and adds to PATH non-silently
+#######################################################################################################################
+
 import os
 import shutil
 import subprocess
@@ -13,13 +21,12 @@ INSTALLER_PATH = Path("tesseract_installer.exe")                    # represents
 # represents the url for downloading the tesseract installer
 INSTALLER_URL = "https://github.com/tesseract-ocr/tesseract/releases/download/5.5.1/tesseract-ocr-w64-setup-5.5.1.XXXX.exe"
 
+# defines a function to install the tesseract program if it isn't found on the host system
 def install_tesseract():
-    """Download and install Tesseract with progress reporting."""
-    print("⚠️  Tesseract not found. Attempting to install...")
+    print("Tesseract not found. Attempting to install...")
 
     try:
-        # --- DOWNLOAD WITH PROGRESS ---
-        print("⬇ Downloading Tesseract installer...")
+        print("Downloading Tesseract installer...")
         response = requests.get(INSTALLER_URL, stream=True, timeout=60)
         response.raise_for_status()
 
@@ -97,7 +104,7 @@ def ensure_tesseract():
             print("🎉 Tesseract successfully installed!")
             return TESSERACT_EXE
         else:
-            print("❌ Could not find or install Tesseract. Please install manually:")
+            print("  Could not find or install Tesseract. Please install manually:")
             print("   https://github.com/UB-Mannheim/tesseract/wiki")
             return None
 

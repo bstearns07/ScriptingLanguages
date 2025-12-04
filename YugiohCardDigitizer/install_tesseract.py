@@ -1,11 +1,9 @@
-########################################################################################################################
-# Title..............: Capstone Final Project - Ocular Recognition
-# Author.............: Ben Stearns
-# Date...............: 10-30-2025
-# Purpose............: The purpose of this program is to:
-#                       - Scan an image of a card
-#                       - Extracts the text using OCR
-# File Description...: checks to see if tesseract is installed. If not, it downloads it and adds to PATH
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: checks to see if tesseract is installed. If not, it downloads it and adds to PATH silently
 #######################################################################################################################
 
 """

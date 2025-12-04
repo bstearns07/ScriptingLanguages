@@ -1,11 +1,9 @@
-########################################################################################################################
-# Title..............: Capstone Final Project - Ocular Recognition
-# Author.............: Ben Stearns
-# Date...............: 10-30-2025
-# Purpose............: The purpose of this program is to:
-#                       - Scan an image of a card
-#                       - Extracts the text using OCR
-# File Description...: defines a function to run the tesseract program on all image files
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines a function to run the tesseract program on all image files in the samples directory
 #######################################################################################################################
 # REQUIRED: Download tesseract here => https://github.com/UB-Mannheim/tesseract/wiki
 #pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -19,17 +17,19 @@ from extractor import extract_text          # for use of the extract_text() func
 from utils import extract_card_info      # for use of the extract_contact_info() function
 
 
-images_dir = "samples"
+images_dir = "samples"  # represents the directory containing the images to scan
 
+# defines a function that loops through all images in the scan directory and attempt to extra card data from them
 def main():
     for file in os.listdir(images_dir):
-        image_filepath = os.path.join(images_dir, file)
-        processed_image = preprocess_image(image_filepath)
-        text = extract_text(processed_image)
-        card = extract_card_info(text)
+        image_filepath = os.path.join(images_dir, file)     # defines the full filepath to the image
+        processed_image = preprocess_image(image_filepath)  # prepare the image for tesseract and store
+        text = extract_text(processed_image)                # extract all text from the card
+        card = extract_card_info(text)                      # use the extracted text to create a card
 
-        processed_image.save("tesseractImage.png")
+        processed_image.save("tesseractImage.png")          # to save the processed image to debug what tesseract sees
 
+        # print the results
         print("===Extracted Text===")
         print(text)
         print("===Image Information===")
