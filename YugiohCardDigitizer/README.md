@@ -10,7 +10,7 @@
     - [View Library Page](#library-page)
     - [Add Card Page](#add-card-page)
     - [Flash Messages](#flash-messages)
-- [Maintainers](#maintainers)
+- [Maintainer](#maintainer)
 
 # Summary
 
@@ -51,7 +51,7 @@ If you need to regenerate the database simply run create_database, and it will c
 ## Flash Messages
 ![Main Menu](Screenshots/flash_messages.png)
 
-# <u>*Maintainer*</u>
+# Maintainer
 [@bstearns07](https://github.com/bstearns07) Ben Stearns
 
 [Back to Top](#yugioh-card-library)
