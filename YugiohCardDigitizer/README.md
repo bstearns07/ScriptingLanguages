@@ -6,7 +6,7 @@
 - [Requirements](#requirements)
 - [How to Run the Application](#how-to-run-the-application)
 - [Screenshots](#screenshots)
-    - [Intro Screen](#main-menu)
+    - [Main Menu](#main-menu)
     - [View Library Page](#library-page)
     - [Add Card Page](#add-card-page)
     - [Flash Messages](#flash-messages)
