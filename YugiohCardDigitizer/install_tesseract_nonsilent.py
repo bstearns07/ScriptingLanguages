@@ -124,7 +124,7 @@ def ensure_tesseract():
 # driver that runs the script if ran directly
 if __name__ == "__main__":
     # auto-elevate to admin before anything else
-    require_admin()
+    #require_admin()
 
     # check if tesseract is already on the host system, install if needed, and return it's filepath
     path = ensure_tesseract()

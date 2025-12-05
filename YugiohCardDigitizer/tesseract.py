@@ -6,8 +6,7 @@
 # File Description......: defines a function to run the tesseract program on all image files in the samples directory
 #######################################################################################################################
 # REQUIRED: Download tesseract here => https://github.com/UB-Mannheim/tesseract/wiki
-#pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-# python.org/downloads/release/python-3127
+
 # imports
 import os
 
@@ -16,7 +15,7 @@ from preprossing import preprocess_image    # for use of the preprocess_image() 
 from extractor import extract_text          # for use of the extract_text() function
 from utils import extract_card_info      # for use of the extract_contact_info() function
 
-
+# defines the directory to search for images in
 images_dir = "samples"  # represents the directory containing the images to scan
 
 # defines a function that loops through all images in the scan directory and attempt to extra card data from them
@@ -31,8 +30,7 @@ def main():
         # text = extract_text(image)
         # card = extract_card_info(text)
 
-
-        processed_image.save("tesseractImage.png")          # to save the processed image to debug what tesseract sees
+        processed_image.save("tesseractImage.png") # to save the processed image to debug what tesseract sees
 
         # print the results
         print("===Extracted Text===")
