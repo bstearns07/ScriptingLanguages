@@ -6,110 +6,102 @@
 # File Description......: checks to see if tesseract is installed. If not, it downloads it and adds to PATH non-silently
 #######################################################################################################################
 
-import os
-import shutil
-import subprocess
-import sys
-import time
-from pathlib import Path
+import os                   # for checking whether tesseract.exe already exists on the host system
+import shutil               # for checking if tesseract exists in the system PATH
+import subprocess           # used to run the tesseract installer as a process
+import sys                  # used for exiting the program if the installation fails
+import time                 # for animating the "still installing" spinner
+from pathlib import Path    # to allow object-oriented file management
 
-import requests
-
+# define script variables for representing the path to the installer and download location for tesseract.exe
 TESSERACT_EXE = r"C:\Program Files\Tesseract-OCR\tesseract.exe"    # represents the location to download tesseract
 INSTALLER_PATH = Path("tesseract_installer.exe")                    # represents the path to run the tesseract installer
 
-# represents the url for downloading the tesseract installer
-INSTALLER_URL = "https://github.com/tesseract-ocr/tesseract/releases/download/5.5.1/tesseract-ocr-w64-setup-5.5.1.XXXX.exe"
-
 # defines a function to install the tesseract program if it isn't found on the host system
 def install_tesseract():
-    print("Tesseract not found. Attempting to install...")
+    print("Tesseract not found. Attempting to install from local installer...")
 
+    # define a safety statement that returns false that the installer file isn't present just in case
+    if not INSTALLER_PATH.exists():
+        print(f"❌ Installer not found: {INSTALLER_PATH}")
+        return False
+
+    # attempt to run the installer to install tesseract
     try:
-        print("Downloading Tesseract installer...")
-        response = requests.get(INSTALLER_URL, stream=True, timeout=60)
-        response.raise_for_status()
+        print("⚙ Running installer... Please wait.\n")
 
-        total_size = int(response.headers.get("content-length", 0))
-        downloaded = 0
-        chunk_size = 8192
-
-        with open(INSTALLER_PATH, "wb") as file:
-            for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:
-                    file.write(chunk)
-                    downloaded += len(chunk)
-
-                    if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        print(f"   Download progress: {percent:5.1f}% ({downloaded // 1024} KB)", end="\r")
-
-        print("\n✅ Download complete. Installing...")
-
-        # --- INSTALL WITH PERIODIC STATUS ---
-        print("⚙ Running installer... this can take a minute.")
-
+        # Launch installer non-blocking, send log info to a file, and silence terminal output
         process = subprocess.Popen(
             [str(INSTALLER_PATH), "/SILENT", "/LOG=install_log.txt"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
 
-        # Polling loop
-        while True:
-            ret = process.poll()
-            if ret is not None:
-                break
+        # Spinner indicator for simulating the process is still running
+        spinner = ["⠙","⠸","⠼","⠴","⠦","⠇"] # the frames of the spinner
+        i = 0 # for tracking which frame the spinner is one
+        print("   Installing Tesseract...\n")
 
-            print("   ⏳ Still installing...", end="\r")
-            time.sleep(2)
+        # define a loop that runs as long as the installer is still running that prints the spinner
+        while process.poll() is None:
+            print(f"   {spinner[i % len(spinner)]} Still installing...", end="\r") # cycles through spinner list
+            i += 1 # increment to next frame of spinner
+            time.sleep(0.15) # pause a little between iterations for smooth animation
 
+        # Once the process is done, check if it returned an error code. If so, display an error occurred. Return false
         if process.returncode != 0:
-            raise RuntimeError("Installer returned an error code.")
+            print("\n❌ Installer exited with an error.")
+            return False
 
-        print("✅ Installation finished.")
+        # otherwise display the installer finished successfully
+        print("\n✅ Installer completed successfully.")
 
-        # Add to PATH
+        # Add Tesseract to PATH by appending it's folder to environment variable
         tesseract_dir = os.path.dirname(TESSERACT_EXE)
-        os.environ["PATH"] += os.pathsep + tesseract_dir
-
         subprocess.run(
             f'setx PATH "%PATH%;{tesseract_dir}"',
-            shell=True,
-            check=False
+            shell=True, # allows running the Windows setx command
+            check=False # prevents throwing errors even if PATH was already updated
         )
 
+        # display tesseract was successfully added to PATH
         print("✅ Added Tesseract to PATH.")
         return True
 
+    # catch all other exception that may occur and return false
     except Exception as e:
         print(f"❌ Failed to install Tesseract: {e}")
         return False
 
-    finally:
-        if INSTALLER_PATH.exists():
-            INSTALLER_PATH.unlink(missing_ok=True)
-
 def ensure_tesseract():
-    """Ensure Tesseract is installed and return its path."""
-    if shutil.which("tesseract"):
+    # check if tesseract is already in PATH. If found, return the absolute path the executable for printing
+    if shutil.which("tesseract"): # searches system PATH
         print("✔ Tesseract found in PATH.")
         return shutil.which("tesseract")
+    # check that tesseract exists at the expected installation location. If so, returns it's filepath
     elif os.path.exists(TESSERACT_EXE):
         print("✔ Tesseract found at default location.")
         return TESSERACT_EXE
+    # if tesseract is not found, attempt to install it and store if it was successful
     else:
         success = install_tesseract()
+
+        # if the installation was successful and tesseract is at the expected location, print success and return path
         if success and os.path.exists(TESSERACT_EXE):
             print("🎉 Tesseract successfully installed!")
             return TESSERACT_EXE
+        # if installation was not successful, print the failure and return nothing
         else:
             print("  Could not find or install Tesseract. Please install manually:")
             print("   https://github.com/UB-Mannheim/tesseract/wiki")
             return None
 
+# driver that runs the script if ran directly
 if __name__ == "__main__":
+    # check if tesseract is already on the host system, install if needed, and return it's filepath
     path = ensure_tesseract()
+
+    # if the filepath returned successfully, print its path. Otherwise, exit the program
     if path:
         print(f"Tesseract available at: {path}")
     else:
