@@ -15,7 +15,7 @@ from pathlib import Path    # to allow object-oriented file management
 
 # define script variables for representing the path to the installer and download location for tesseract.exe
 TESSERACT_EXE = r"C:\Program Files\Tesseract-OCR\tesseract.exe"    # represents the location to download tesseract
-INSTALLER_PATH = Path("tesseract_installer.exe")                    # represents the path to run the tesseract installer
+INSTALLER_PATH = Path("tesseract-ocr-w64-setup-5.5.0.20241111 (1).exe") # represents the path to run the tesseract installer
 
 def require_admin():
     """Re-launch the script with admin privileges if not already elevated."""
