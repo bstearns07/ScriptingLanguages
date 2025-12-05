@@ -5,7 +5,7 @@
 # Project Description...: This application creates a digital database library for storing and managing Yugioh cards
 # File Description......: checks to see if tesseract is installed. If not, it downloads it and adds to PATH non-silently
 #######################################################################################################################
-
+import ctypes
 import os                   # for checking whether tesseract.exe already exists on the host system
 import shutil               # for checking if tesseract exists in the system PATH
 import subprocess           # used to run the tesseract installer as a process
@@ -16,6 +16,25 @@ from pathlib import Path    # to allow object-oriented file management
 # define script variables for representing the path to the installer and download location for tesseract.exe
 TESSERACT_EXE = r"C:\Program Files\Tesseract-OCR\tesseract.exe"    # represents the location to download tesseract
 INSTALLER_PATH = Path("tesseract_installer.exe")                    # represents the path to run the tesseract installer
+
+def require_admin():
+    """Re-launch the script with admin privileges if not already elevated."""
+    try:
+        is_admin = ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        is_admin = False
+
+    if not is_admin:
+        # Relaunch with admin rights
+        ctypes.windll.shell32.ShellExecuteW(
+            None,
+            "runas",
+            sys.executable,
+            " ".join(sys.argv),
+            None,
+            1
+        )
+        sys.exit()  # Exit original (non-admin) process
 
 # defines a function to install the tesseract program if it isn't found on the host system
 def install_tesseract():
@@ -32,7 +51,13 @@ def install_tesseract():
 
         # Launch installer non-blocking, send log info to a file, and silence terminal output
         process = subprocess.Popen(
-            [str(INSTALLER_PATH), "/SILENT", "/LOG=install_log.txt"],
+            [
+                str(INSTALLER_PATH),
+                "/VERYSILENT",
+                "/SUPPRESSMSGBOXES",
+                "/NORESTART",
+                "/LOG=install_log.txt"
+            ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
@@ -98,6 +123,9 @@ def ensure_tesseract():
 
 # driver that runs the script if ran directly
 if __name__ == "__main__":
+    # auto-elevate to admin before anything else
+    require_admin()
+
     # check if tesseract is already on the host system, install if needed, and return it's filepath
     path = ensure_tesseract()
 
