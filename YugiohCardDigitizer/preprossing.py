@@ -3,14 +3,141 @@
 # Extracts: name, attribute, type, description, ATK, DEF
 # Works on clean, unprocessed card images photographed/scanned
 ###################################################################################################
+import difflib
 import os
 
 # imports
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance  # for image manipulation
 import pytesseract                              # for ocular recognition functionality
 import re                                       # for pattern matching text extracted from cards
+import numpy as np
 
 DIGIT_FIX = {'O':'0', 'D':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8'} # for mapping common OCR misreads to correct digits
+# define a list of all monster types for matching
+KNOWN_TYPES = [
+    "AQUA", "BEAST", "BEAST-WARRIOR", "CREATOR GOD", "CYBERSE", "DINOSAUR",
+    "DIVINE-BEAST", "DRAGON", "FAIRY", "FIEND", "FISH", "INSECT", "MACHINE",
+    "PLANT", "PSYCHIC", "PYRO", "REPTILE", "ROCK", "SEA SERPENT",
+    "SPELLCASTER", "THUNDER", "WARRIOR", "WINGED BEAST", "WYRM", "ZOMBIE"
+]
+# Common OCR corrections for Yu-Gi-Oh monster types
+COMMON_FIXES = {
+    "0": "O",
+    "1": "I",
+    "5": "S",
+    "6": "G",
+    "8": "B",
+    "4": "A",
+    "|": "I",
+    "{": "[",
+    "}": "]",
+}
+
+def clean_raw_type(text):
+    """Normalize raw OCR output before matching."""
+    if not text:
+        return ""
+
+    t = text.upper().strip()
+
+    # Apply common OCR corrections
+    t = "".join(COMMON_FIXES.get(c, c) for c in t)
+
+    # Remove anything not A–Z, space, bracket, or dash
+    t = re.sub(r"[^A-Z\[\]\- ]", "", t)
+
+    # Strip brackets for matching
+    t = t.replace("[", "").replace("]", "").strip()
+
+    return t
+
+
+def safe_fuzzy_match(raw):
+    """Safely match against known types without overcorrecting."""
+
+    # If OCR returned something extremely short (e.g., "TD"), do NOT guess.
+    if len(raw) < 4:
+        return raw  # too short to safely autocorrect
+
+    # Try direct fuzzy match
+    match = difflib.get_close_matches(raw, KNOWN_TYPES, n=1, cutoff=0.6)
+
+    if match:
+        return match[0]
+
+    # As a fallback, allow slightly looser matching ONLY if very close
+    loose = difflib.get_close_matches(raw, KNOWN_TYPES, n=1, cutoff=0.45)
+    if loose:
+        # Prevent catastrophic mismatches: ensure similarity ratio > 0.6
+        if difflib.SequenceMatcher(None, raw, loose[0]).ratio() > 0.60:
+            return loose[0]
+
+    return raw  # if everything fails, keep as-is
+
+def guess_monster_type(text):
+    inside = text.strip("[]").strip()
+
+    # 1. Try fuzzy match with a lower cutoff
+    match = difflib.get_close_matches(inside, KNOWN_TYPES, n=1, cutoff=0.2)
+    if match:
+        return f"{match[0]}"
+
+    # 2. Levenshtein-distance fallback (manual)
+    def edit_dist(a,b):
+        dp = [[0]*(len(b)+1) for _ in range(len(a)+1)]
+        for i in range(len(a)+1):
+            dp[i][0] = i
+        for j in range(len(b)+1):
+            dp[0][j] = j
+        for i in range(1, len(a)+1):
+            for j in range(1, len(b)+1):
+                cost = 0 if a[i-1] == b[j-1] else 1
+                dp[i][j] = min(
+                    dp[i-1][j] + 1,
+                    dp[i][j-1] + 1,
+                    dp[i-1][j-1] + cost
+                )
+        return dp[-1][-1]
+
+    best = None
+    best_score = 999
+
+    for t in KNOWN_TYPES:
+        d = edit_dist(inside, t)
+        if d < best_score:
+            best_score = d
+            best = t
+
+    # 3. Require normalized distance < 0.6 to accept
+    if best and best_score / len(best) <= 0.6:
+        return f"{best}"
+
+    return text
+def normalize_type_text(t):
+    t = t.upper().strip()
+
+    # common OCR errors
+    t = t.replace("0", "O")
+    t = t.replace("1", "I")
+    t = t.replace("8", "B")
+    t = t.replace("{", "[")
+    t = t.replace("}", "]")
+    t = t.replace("]", "]")  # ensure at least one
+    t = t.replace("[ ", "[")
+    t = t.replace(" ]", "]")
+
+    # remove stray characters tesseract often produces
+    allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[]- "
+    t = "".join(c for c in t if c in allowed)
+
+    # force bracket format if missing
+    if not t.startswith("["):
+        t = "[" + t
+    if not t.endswith("]"):
+        t += "]"
+
+    return t
+
 
 #######################################################################################################################
 # Function that replaces text misreads by OCR with fixed version in a consistent format
@@ -55,75 +182,98 @@ def debug_show_crops(regions):
         # make a safe filename by replacing anything not a letter, number, underscore or hyphen with an underscore
         safe_key = re.sub(r'[^a-zA-Z0-9_-]', '_', key)
         img.save(f"processed_pics/{safe_key}.png") # save the image for viewing what the cropped image looks like
-        # img.show(title=key)
+        # img.show(title=key) # only uncomment if you wish to display all cropped images
 
+#######################################################################################################################
+# Function that attempts to match a scanned card's attribute with base images in the "attributes" folder
+# Parameters: the cropped attribute image and directory containing template images to compare
+# Returns: the best match found
+#######################################################################################################################
 def classify_attribute(cropped_attr_img, template_dir="attributes"):
-    """
-    Histogram-matching classifier with equal preprocessing.
-    """
-    # Preprocess the cropped icon exactly like the templates
+    """Classify attribute icon using normalized correlation instead of histogram distance."""
+    # Preprocess the cropped icon exactly like the templates for better matching
     img = preprocess_attr_for_match(cropped_attr_img)
-    img_hist = img.histogram()
+    img_arr = np.array(img, dtype=np.float32)
+    img_arr = (img_arr - img_arr.mean()) / (img_arr.std() + 1e-6)
 
+    # define variables to store the best matching label and matching score found
     best_match = None
-    best_score = float("inf")
+    best_score = -1.0
 
     for filename in os.listdir(template_dir):
         if not filename.lower().endswith(".png"):
             continue
 
         label = filename.split(".")[0].upper()
-
         template = Image.open(os.path.join(template_dir, filename))
-
-        # Apply the same processing to templates
         template = preprocess_attr_for_match(template)
-        template_hist = template.histogram()
+        template_arr = np.array(template, dtype=np.float32)
+        template_arr = (template_arr - template_arr.mean()) / (template_arr.std() + 1e-6)
 
-        score = sum((a - b) ** 2 for a, b in zip(img_hist, template_hist))
+        # normalized cross-correlation
+        score = np.mean(img_arr * template_arr)
 
-        if score < best_score:
+        if score > best_score:
             best_score = score
             best_match = label
 
     return best_match
 
+
+#######################################################################################################################
+# Function that performs ocr on an image and return the text extracted as a dictionary
+# Parameters: the image to be scanned and optional configurations if desired
+# Returns: the image's text information as a dictionary for more structured analysis (like skipping unsure words)
+#######################################################################################################################
 def ocr_data(img, config=""):
-    """Return tesseract 'data' dictionary so we can inspect word confidences."""
-    # Use OEM 3 (LSTM) by default unless you have a reason not to
+    """Return tesseract data as a dictionary to inspect word confidences."""
+    # Use the default engine mode for tesseract since it's more accurate
+    # append any optional configurations
     cfg = ("--oem 3 " + config).strip()
+
+    # perform ocr to get each word detected, output as a dictionary instead of plain text, pass in configurations
     return pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT, config=cfg)
 
+#######################################################################################################################
+# Function that takes data returned by ocr and only keeps words that pass a certain confidence level
+# Parameters: the ocr data and the minimum confidence level for a word
+# Returns: only a list of words that pass the confidence test
+#######################################################################################################################
 def ocr_text_from_data(data, min_conf=60):
-    """Assemble text from image_to_data output, skipping low-confidence words."""
-    words = []
-    for i, w in enumerate(data.get('text', [])):
-        txt = w.strip()
+    """Assembles the words detected by ocr while only keeping words with high confidence level"""
+    words = [] # for storing words that pass confidence test
+
+    # iterate through each word detected by tesseract and sanitize it for analysis
+    for index, word in enumerate(data.get('text', [])):
+        txt = word.strip()
+
+        # if the resulting word is empty, continue to the next word
         if not txt:
             continue
+
+        # attempt to extract the confidence level for the word by its corresponding index
+        # sometimes tesseract returns level as a string, so wrap in try/except just in case and return -1 if fails
         try:
-            conf = int(float(data['conf'][i]))
+            conf = int(float(data['conf'][index]))
         except:
             conf = -1
+
+        # only keep the word if it's above the minimum confidence level
         if conf >= min_conf:
             words.append(txt)
-    # join with space; caller will clean up punctuation as needed
+
+    # join the list together with a space separator
     return " ".join(words).strip()
 
-# Basic char-correction to fix common OCR mistakes
-CHAR_FIXES = {
-    '0': 'O',  # zero -> letter O if in name
-    '1': 'I',
-    '5': 'S',
-    '6': 'G',
-    '8': 'B',
-    '|': 'I',
-    '¢': 'c'
-}
-
+#######################################################################################################################
+# Function that cleans up and fixes common character misreads by ocr for a card's name
+# Parameters: the raw string for the card's name
+# Returns: a cleaned and standard format for the name as a string
+#######################################################################################################################
 def correct_chars_for_name(raw):
-    s = raw.upper()  # first, uppercase everything
-    # apply likely OCR misreads corrections
+    cleaned_string = raw.upper()  # first, uppercase everything
+
+    # define a dictionary representing common character misreads by ocr and their proper replacement characters
     CHAR_FIXES = {
         '0': 'O',
         '1': 'I',
@@ -133,73 +283,43 @@ def correct_chars_for_name(raw):
         '|': 'I',
         '¢': 'C'
     }
-    s = "".join(CHAR_FIXES.get(ch, ch) for ch in s)
-    # allow letters, numbers, spaces, hyphens
-    s = re.sub(r"[^A-Z0-9\s\-]", "", s)
-    # collapse multiple spaces
-    s = re.sub(r"\s{2,}", " ", s).strip()
-    # optional: capitalize each word
-    s = " ".join(w.capitalize() for w in s.split())
-    return s
 
+    # iterate through each character in the original string
+    # if character exists in CHAR_PIXES, replace it with the dictionary value. otherwise keep it unchanged
+    cleaned_string = "".join(CHAR_FIXES.get(ch, ch) for ch in cleaned_string)
 
-def normalize_atkdef_text(text):
-    """Convert OCR-misread characters to digits and uppercase text."""
-    return "".join(DIGIT_FIX.get(ch, ch) for ch in text.upper())
+    cleaned_string = re.sub(r"[^A-Z0-9\s\-]", "", cleaned_string) # allow letters, numbers, spaces, hyphens
+    cleaned_string = re.sub(r"\s{2,}", " ", cleaned_string).strip() # collapse multiple spaces
+    cleaned_string = " ".join(w.capitalize() for w in cleaned_string.split()) # capitalize each word
+    return cleaned_string
 
-def extract_atk_def_from_text(text):
-    if not text:
-        return None, None
-
-    # Normalize OCR digits
-    DIGIT_FIX = { 'O':'0', 'D':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8' }
-    text_norm = "".join(DIGIT_FIX.get(ch, ch) for ch in text.upper())
-
-    # Fix misread labels
-    text_norm = fix_atkdef_labels(text_norm)
-
-    # Regex patterns
-    patterns = [
-        r'ATK[:]?([0-9]{2,5})DEF[:]?([0-9]{2,5})',  # ATK:3000DEF:2500
-        r'([0-9]{2,5})/([0-9]{2,5})',               # 3000/2500
-        r'([0-9]{2,5})([0-9]{2,5})'                 # fallback
-    ]
-
-    for pat in patterns:
-        m = re.search(pat, text_norm)
-        if m:
-            try:
-                return int(m.group(1)), int(m.group(2))
-            except:
-                continue
-    return None, None
-
+#######################################################################################################################
+# Function that crops a Yugioh card image into 5 regions containing the information we need
+# Parameters: the original card image
+# Returns: a dictionary of the cropped image sections
+#######################################################################################################################
 def crop_regions(img):
-    """Crop the 5 major text zones of a Yu-Gi-Oh card."""
-    w, h = img.size
+    """Crops the 5 major text zones of a YuGiOh card."""
+    w, h = img.size # retrieve the width and height of the image
 
-    # Adjust these as needed based on your input images.
-    name_box       = (int(0.07*w), int(0.05*h), int(0.80*w), int(0.13*h))
-    attribute_box  = (int(0.80*w), int(0.07*h), int(0.91*w), int(0.15*h))
-    type_box = (
-        int(0.08 * w),
-        int(0.73 * h),  # moved down
-        int(0.70 * w),
-        int(0.78 * h)
-    )
-    desc_box       = (int(0.07*w), int(0.68*h), int(0.93*w), int(0.87*h))
-    atkdef_box     = (int(0.50*w), int(0.89*h), int(0.89*w), int(0.93*h))
-
+    # define the coordinates for Pillow's crop() function (left, upper, right, lower)
+    # ex for name_box: starting bit = 7% from left, next bit = 5% from top, last = 80% from right and 13% from bottom
+    name_box = (int(0.07*w), int(0.05*h), int(0.80*w), int(0.13*h))
+    attribute_box = (int(0.80*w), int(0.07*h), int(0.91*w), int(0.15*h))
+    type_box = (int(0.08 * w),int(0.73 * h),(0.70 * w),int(0.78 * h))
+    desc_box = (int(0.07*w), int(0.68*h), int(0.93*w), int(0.87*h))
+    atk_def_box = (int(0.50*w), int(0.89*h), int(0.89*w), int(0.93*h))
+    img.crop(type_box).save("DEBUG_type_crop.png")
     return {
         "name": img.crop(name_box),
         "attribute": img.crop(attribute_box),
         "type": img.crop(type_box),
         "description": img.crop(desc_box),
-        "atkdef": img.crop(atkdef_box)
+        "atkdef": img.crop(atk_def_box)
     }
 
 def preprocess_name(img):
-    """Enhance name region for OCR accuracy."""
+    """Used to prepare a cropped card name image for ocr"""
     gray = img.convert("L")
     gray = ImageOps.autocontrast(gray)
     gray = gray.filter(ImageFilter.MedianFilter(3))
@@ -216,74 +336,81 @@ def preprocess_attr_for_match(img):
 
     # NEW: normalize brightness/contrast to improve matching
     g = ImageOps.autocontrast(g)
-
-    return g.resize((64, 64), Image.LANCZOS)
-
+    g.resize((64, 64), Image.LANCZOS)
+    return g
 
 def preprocess_attribute(img):
     """
-    Best preprocessing for low-res Yu-Gi-Oh attribute icons using ONLY Pillow.
-    - Early upscaling
-    - Mild noise cleaning
-    - Local contrast boost
-    - Gentle edge enhancement
+    Very light preprocessing for attribute icons — keep color & structure!
     """
-    # 1. Convert to grayscale
-    gray = img.convert("L")
+    # Slight upscale for stability
+    img = img.resize((img.width * 2, img.height * 2), Image.LANCZOS)
 
-    # 2. Upscale early (super important)
-    gray = gray.resize((gray.width * 4, gray.height * 4), Image.LANCZOS)
+    # Gentle denoise (small median filter)
+    img = img.filter(ImageFilter.MedianFilter(size=3))
 
-    # 3. Mild denoise: small median filter
-    gray = gray.filter(ImageFilter.MedianFilter(size=3))
+    # Mild autocontrast but NOT full dynamic range
+    img = ImageOps.autocontrast(img, cutoff=4)
 
-    # 4. Local contrast boost (Pillow's closest to CLAHE)
-    enhancer = ImageEnhance.Contrast(gray)
-    gray = enhancer.enhance(1.4)      # Light contrast boost
+    return img
 
-    # 5. Light brightness adjustment to deepen text
-    enhancer = ImageEnhance.Brightness(gray)
-    gray = enhancer.enhance(0.9)
-
-    # 6. Gentle edge enhance (safer than UnsharpMask)
-    gray = gray.filter(ImageFilter.EDGE_ENHANCE_MORE)
-
-    # 7. Do NOT threshold — keep grayscale to avoid destroying detail
-    #gray.show()
-    gray.save("processed_pics/processed_attribute.png")
-    return gray
 
 
 def preprocess_type(img):
+    """Used to prepare a cropped card_type image for ocr"""
     gray = img.convert("L")
     gray = ImageOps.autocontrast(gray)
     gray = gray.resize((gray.width * 6, gray.height * 6), Image.LANCZOS)  # bigger upscale
     gray = gray.filter(ImageFilter.MedianFilter(3))
     gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=250))       # stronger
     gray = ImageEnhance.Contrast(gray).enhance(1.5)
-    gray.show()
+    gray.save("processed_pics/processed_monsterType.png")
     return gray
 
 
 def preprocess_desc(img):
+    """Used to prepare a cropped card description image for ocr"""
     gray = img.convert("L")
     gray = gray.resize((gray.width * 2, gray.height * 2), Image.LANCZOS)
     gray = gray.filter(ImageFilter.MedianFilter(3))
     return gray
 
-def ocr(img, config=""):
-    """Run Tesseract OCR with given config."""
-    return pytesseract.image_to_string(img, config=config).strip()
+def extract_monster_type(type_raw):
+    cleaned = clean_raw_type(type_raw)
+    if not cleaned:
+        return ""
 
+    cleaned_set = set(cleaned)
 
-def extract_atk_def(text):
-    atk = defn = None
-    match = re.search(r"ATK\s*[:/ ]\s*(\d+)\D+DEF\s*[:/ ]\s*(\d+)", text)
-    if match:
-        atk = int(match.group(1))
-        defn = int(match.group(2))
-    return atk, defn
+    # --- SPECIAL CASES -----------------------------------------------------
+    # If OCR gives "TD", "FD", "RD", "ID", etc → usually DRAGON
+    # Dragon's [D] is the darkest, boldest letter in the type box.
+    if cleaned in ("TD", "FD", "RD", "ID", "DD", "D"):
+        return "DRAGON"
 
+    # If the cleaned string starts with D and is short → also Dragon
+    if cleaned.startswith("D") and len(cleaned) <= 3:
+        return "DRAGON"
+
+    # --- GENERAL LETTER-OVERLAP LOGIC --------------------------------------
+    best = None
+    best_score = -999
+
+    for t in KNOWN_TYPES:
+        t_clean = t.replace("-", "").replace(" ", "")
+        t_set = set(t_clean)
+
+        score = len(cleaned_set & t_set) / len(t_clean)
+
+        if score > best_score:
+            best_score = score
+            best = t
+
+    # if match is extremely weak, return raw OCR
+    if best_score < 0.2:
+        return cleaned
+
+    return best
 
 def process_yugioh_card(image_path):
     original = Image.open(image_path)
@@ -304,29 +431,14 @@ def process_yugioh_card(image_path):
 
     # ---------- ATTRIBUTE ----------
     attribute = classify_attribute(attribute_img)
-    attribute_img.show()
 
     # ---------- TYPE ----------
-    type_data = ocr_data(type_img, config="--psm 7")
+    type_data = ocr_data(type_img, config="--psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ[]")
     type_raw = ocr_text_from_data(type_data, min_conf=45)
-
-    # Uppercase and remove non-letter characters (keep brackets)
-    type_raw = re.sub(r'[^A-Z\[\]\s\-]', '', type_raw.upper())
-
-    # Fix common OCR misreads of brackets
-    type_raw = type_raw.replace('I', '[').replace('L', '[').replace('|', '[')
-
-    # Collapse multiple spaces
-    type_raw = re.sub(r'\s{2,}', ' ', type_raw).strip()
-
-    # Try to extract text inside brackets first
-    m = re.search(r'\[\s*([A-Z\s\-]+)\s*\]', type_raw)
-    if m:
-        type_clean = m.group(1).title()
-    else:
-        # Fallback: use first 1-3 words as type
-        words = type_raw.split()
-        type_clean = " ".join(words[:3]).title() if words else "Unknown"
+    type_clean = extract_monster_type(type_raw)
+    print(f"type data: {type_data}")
+    print(f"type data raw: {type_raw}")
+    print(f"type data clean: {type_clean}")
 
     # ---------- DESCRIPTION ----------
     desc_data = ocr_data(desc_img, config="--psm 6")

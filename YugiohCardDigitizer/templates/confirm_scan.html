@@ -18,7 +18,7 @@
 
             {% if card and card.image_filename %}
             <img src="{{ url_for('static', filename='images/cards/' ~ card.image_filename) }}"
-                 alt="Current Card Image" class="img-thumbnail mt-2" style="max-width:150px;">
+                 alt="Current Card Image" class="img-thumbnail mt-2" style="max-width:400px;">
             {% endif %}
         </div>
     </div>
