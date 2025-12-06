@@ -296,6 +296,13 @@ def delete_card(card_id):
     flash("Card successfully deleted", "danger")
     return redirect(url_for("library"))
 
+@app.get("/scan")
+def scan():
+    return render_template(
+        "scan.html",
+        title="Scan Image"
+    )
+
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":
     # run Flask's built-in web server and pass the web app code to it

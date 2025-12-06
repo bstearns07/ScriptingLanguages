@@ -9,11 +9,7 @@
 
 # imports
 import os
-
-from PIL import Image, ImageEnhance, ImageOps, ImageFilter
-from preprossing import preprocess_image    # for use of the preprocess_image() function
-from extractor import extract_text          # for use of the extract_text() function
-from utils import extract_card_info      # for use of the extract_contact_info() function
+from preprossing import process_yugioh_card
 
 # defines the directory to search for images in
 images_dir = "samples"  # represents the directory containing the images to scan
@@ -22,23 +18,25 @@ images_dir = "samples"  # represents the directory containing the images to scan
 def main():
     for file in os.listdir(images_dir):
         image_filepath = os.path.join(images_dir, file)     # defines the full filepath to the image
-        processed_image = preprocess_image(image_filepath)  # prepare the image for tesseract and store
-
-        text = extract_text(processed_image)                # extract all text from the card
-        card = extract_card_info(text)  # use the extracted text to create a card
-        # image = Image.open(image_filepath)
-        # text = extract_text(image)
-        # card = extract_card_info(text)
-
-        processed_image.save("tesseractImage.png") # to save the processed image to debug what tesseract sees
-
-        # print the results
-        print("===Extracted Text===")
-        print(text)
-        print("===Image Information===")
-        print(card.name, card.attack, card.defense)
-        print(card.description)
-        print()
+        result = process_yugioh_card(image_filepath)
+        print(result)
+        # processed_image = preprocess_image(image_filepath)  # prepare the image for tesseract and store
+        #
+        # text = extract_text(processed_image)                # extract all text from the card
+        # card = extract_card_info(text)  # use the extracted text to create a card
+        # # image = Image.open(image_filepath)
+        # # text = extract_text(image)
+        # # card = extract_card_info(text)
+        #
+        # processed_image.save("tesseractImage.png") # to save the processed image to debug what tesseract sees
+        #
+        # # print the results
+        # print("===Extracted Text===")
+        # print(text)
+        # print("===Image Information===")
+        # print(card.name, card.attack, card.defense)
+        # print(card.description)
+        # print()
 
 if __name__ == "__main__":
     main()
