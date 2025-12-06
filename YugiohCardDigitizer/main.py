@@ -13,6 +13,7 @@ from flask import Flask, session, render_template, request, redirect, flash, url
 import webbrowser                                                                       # for launching the app
 import DBcm                                                                             # for database functionality
 from Yugioh_Card import YugiohCard
+from preprossing import process_yugioh_card                                             # for ocr image processing
 
 # main program variables
 app = Flask(__name__)                               # defines main app object associated with code's current namespace
@@ -196,7 +197,7 @@ def add_card():
         defense = request.form.get("defense")
         attribute = request.form.get("attribute")
 
-        # Retrieve the card image uploaded by the user is they supplied one
+        # Retrieve the card image uploaded by the user if they supplied one
         file = request.files.get("card_image")
 
         # if the file exists and is an allowed extension, sanitize the filename and save to the upload folder
@@ -296,12 +297,84 @@ def delete_card(card_id):
     flash("Card successfully deleted", "danger")
     return redirect(url_for("library"))
 
-@app.get("/scan")
+@app.route("/scan", methods=["GET", "POST"])
 def scan():
-    return render_template(
-        "scan.html",
-        title="Scan Image"
-    )
+    if request.method == "GET":
+        return render_template("scan.html", title="Scan Image")
+
+    # POST → handle uploaded image
+    file = request.files.get("card_image")
+
+    if not file or file.filename == "":
+        flash("No file selected", "danger")
+        return redirect(url_for("scan"))
+
+    if not allowed_file(file.filename):
+        flash("Unsupported file type", "danger")
+        return redirect(url_for("scan"))
+
+    # Save the uploaded file
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(filepath)
+
+    # Run OCR on the uploaded image
+    try:
+        card_data = process_yugioh_card(filepath)
+    except Exception as e:
+        flash("Error processing image. Check logs.", "danger")
+        print("OCR ERROR:", e)
+        return redirect(url_for("scan"))
+
+    # Include the saved image file for preview
+    card_data["image_filename"] = filename
+
+    return render_template("confirm_scan.html", card=card_data)
+
+@app.post("/confirm_scan")
+def confirm_scan():
+    name = request.form["name"]
+    card_type = request.form["card_type"]
+    description = request.form["description"]
+    monster_type = request.form.get("monster_type")
+    attack = request.form.get("attack")
+    defense = request.form.get("defense")
+    attribute = request.form.get("attribute")
+
+    # Retrieve uploaded file (if any)
+    file = request.files.get("card_image")
+    existing_filename = request.form.get("image_filename")
+
+    # If user uploaded a new image, save it
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+    else:
+        filename = existing_filename  # <-- keep original
+
+    # Save data to database
+    db_details = "Cards.sqlite3"
+    with DBcm.UseDatabase(db_details) as db:
+        SQL = """
+            INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        db.execute(SQL, (
+            name,
+            card_type,
+            monster_type,
+            description,
+            attack,
+            defense,
+            attribute,
+            filename
+        ))
+
+    session.pop("cards", None)
+
+    flash("Card successfully added!", "success")
+    return redirect(url_for("index"))
+
 
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":

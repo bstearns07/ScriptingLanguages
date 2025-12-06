@@ -9,7 +9,20 @@
 #####################################################################################################################
 -->
 {% block body %}
-<form method="post" enctype="multipart/form-data">
+<form method="post" action="{{ url_for('confirm_scan') }}" enctype="multipart/form-data">
+    <div class="row mb-3">
+        <div class="col">
+
+            <!-- Hidden field: always sends the existing filename -->
+            <input type="hidden" name="image_filename" value="{{ card.image_filename if card else '' }}">
+
+            {% if card and card.image_filename %}
+            <img src="{{ url_for('static', filename='images/cards/' ~ card.image_filename) }}"
+                 alt="Current Card Image" class="img-thumbnail mt-2" style="max-width:150px;">
+            {% endif %}
+        </div>
+    </div>
+
     <div class="row mb-3">
         <div class="col-md-3">
             <label for="name" class="form-label form-label-strong">Name</label>
@@ -26,20 +39,6 @@
         </div>
         <div class="col">
             <textarea class="form-control" name="description" required>{{ card.description if card else '' }}</textarea>
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="card_image" class="form-label form-label-strong">Card Image</label>
-        </div>
-        <div class="col">
-            <input type="file" class="form-control" id="card_image" name="card_image"
-                   accept="image/*">
-            {% if card and card.image_filename %}
-            <img src="{{ url_for('static', filename='images/cards/' ~ card.image_filename) }}"
-                 alt="Current Card Image" class="img-thumbnail mt-2" style="max-width:150px;">
-            {% endif %}
         </div>
     </div>
 
@@ -101,11 +100,14 @@
 
     <div class="d-flex justify-content-center gap-2 mt-3">
         <button class="btn btn-success w-100" style="max-width:200px;" type="submit">
-            {{ "Update" if card else "Add Card" }}
+            Save
         </button>
 
         <a href="javascript:history.back()" class="btn btn-primary w-100" style="max-width:200px;">
             Back
+        </a>
+        <a href="/" class="btn btn-danger w-100" style="max-width:200px;">
+            Cancel
         </a>
     </div>
 

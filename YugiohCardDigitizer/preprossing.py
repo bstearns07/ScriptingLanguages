@@ -181,7 +181,12 @@ def crop_regions(img):
     # Adjust these as needed based on your input images.
     name_box       = (int(0.07*w), int(0.05*h), int(0.80*w), int(0.13*h))
     attribute_box  = (int(0.80*w), int(0.07*h), int(0.91*w), int(0.15*h))
-    type_box       = (int(0.07*w), int(0.60*h), int(0.93*w), int(0.68*h))
+    type_box = (
+        int(0.08 * w),
+        int(0.73 * h),  # moved down
+        int(0.70 * w),
+        int(0.78 * h)
+    )
     desc_box       = (int(0.07*w), int(0.68*h), int(0.93*w), int(0.87*h))
     atkdef_box     = (int(0.50*w), int(0.89*h), int(0.89*w), int(0.93*h))
 
@@ -252,8 +257,12 @@ def preprocess_attribute(img):
 def preprocess_type(img):
     gray = img.convert("L")
     gray = ImageOps.autocontrast(gray)
-    gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=80))
-    return gray.resize((gray.width * 2, gray.height * 2), Image.LANCZOS)
+    gray = gray.resize((gray.width * 6, gray.height * 6), Image.LANCZOS)  # bigger upscale
+    gray = gray.filter(ImageFilter.MedianFilter(3))
+    gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=250))       # stronger
+    gray = ImageEnhance.Contrast(gray).enhance(1.5)
+    gray.show()
+    return gray
 
 
 def preprocess_desc(img):
@@ -300,7 +309,24 @@ def process_yugioh_card(image_path):
     # ---------- TYPE ----------
     type_data = ocr_data(type_img, config="--psm 7")
     type_raw = ocr_text_from_data(type_data, min_conf=45)
-    type_clean = re.sub(r'[^A-Z\[\]\s\-]', '', type_raw.upper())
+
+    # Uppercase and remove non-letter characters (keep brackets)
+    type_raw = re.sub(r'[^A-Z\[\]\s\-]', '', type_raw.upper())
+
+    # Fix common OCR misreads of brackets
+    type_raw = type_raw.replace('I', '[').replace('L', '[').replace('|', '[')
+
+    # Collapse multiple spaces
+    type_raw = re.sub(r'\s{2,}', ' ', type_raw).strip()
+
+    # Try to extract text inside brackets first
+    m = re.search(r'\[\s*([A-Z\s\-]+)\s*\]', type_raw)
+    if m:
+        type_clean = m.group(1).title()
+    else:
+        # Fallback: use first 1-3 words as type
+        words = type_raw.split()
+        type_clean = " ".join(words[:3]).title() if words else "Unknown"
 
     # ---------- DESCRIPTION ----------
     desc_data = ocr_data(desc_img, config="--psm 6")
@@ -311,6 +337,9 @@ def process_yugioh_card(image_path):
 
     # ---------- ATK/DEF ----------
     atkdef_raw = pytesseract.image_to_string(atkdef_img, config="--psm 7").strip()
+
+    # ----------IMAGE FILEPATH -----
+    filename = os.path.basename(image_path)
 
     # Fix common misreads in labels only
     def fix_atkdef_labels(text):
@@ -344,12 +373,25 @@ def process_yugioh_card(image_path):
 
     atk, defn = extract_atk_def_numbers(atkdef_fixed_labels)
 
+    # ---------- CARD TYPE INFERENCE ----------
+    if atk is not None:
+        card_type = "Monster"
+    elif attribute == "SPELL":
+        card_type = "Spell"
+    elif attribute == "TRAP":
+        card_type = "Trap"
+    else:
+        card_type = "Unknown"
+
     return {
-            "name": name_clean,
-            "attribute": attribute,
-            "type": type_clean,
-            "description": description,
-            "atk": atk,
-            "def": defn
-        }
+        "name": name_clean,
+        "attribute": attribute,
+        "monster_type": type_clean,
+        "description": description,
+        "attack": atk,
+        "defense": defn,
+        "card_type": card_type,
+        "image_filename": filename
+    }
+
 
