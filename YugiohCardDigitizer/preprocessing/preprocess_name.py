@@ -1,10 +1,17 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines a function that prepares a cropped image of a card's name for OCR
+#######################################################################################################################
+
 #######################################################################################################################
 # Function that prepares an image of a card's name for OCR
 # Parameters: the original cropped image
 # Returns: the preprocessed version of the image
 #######################################################################################################################
 from PIL import ImageOps, ImageFilter, Image
-
 
 def preprocess_name(img):
     """Used to prepare a cropped card name image for ocr"""

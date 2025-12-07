@@ -12,7 +12,6 @@ from werkzeug.utils import secure_filename                                      
 from flask import Flask, session, render_template, request, redirect, flash, url_for    # for webapp functionality
 import webbrowser                                                                       # for launching the app
 import DBcm                                                                             # for database functionality
-from Yugioh_Card import YugiohCard
 from tesseract import process_yugioh_card                                             # for ocr image processing
 
 # main program variables

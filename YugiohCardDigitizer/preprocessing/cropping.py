@@ -1,3 +1,11 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines a function for cropping a single card image in regions containing info to process
+#######################################################################################################################
+
 #######################################################################################################################
 # Function that crops a Yugioh card image into 5 regions containing the information we need
 # Parameters: the original card image

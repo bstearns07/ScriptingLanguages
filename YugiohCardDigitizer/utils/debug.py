@@ -1,5 +1,12 @@
-import re
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines a function that prints and optionally shows all regions cropped from a card
+#######################################################################################################################
 
+import re
 
 #######################################################################################################################
 # Function saves each image produced by cropping the original card image by saving the images for viewing/debugging

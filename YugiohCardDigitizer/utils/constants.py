@@ -1,3 +1,10 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines constants used for fixing common OCR mistakes and matching a monster's type
+#######################################################################################################################
 
 # define a list of all monster types for matching
 KNOWN_TYPES = [

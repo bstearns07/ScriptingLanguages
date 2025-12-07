@@ -1,7 +1,13 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines functions to clean/extract a card image's monster_type through best-match scenario
+#######################################################################################################################
+
 import re
-
 from YugiohCardDigitizer.utils.constants import COMMON_FIXES, KNOWN_TYPES
-
 
 #######################################################################################################################
 # Function used to analyze the extracted text for a card's monster_type for it's best match in KNOWN_TYPES

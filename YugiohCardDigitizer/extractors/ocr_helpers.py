@@ -1,11 +1,18 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines functions for extracting a card image's description information
+#######################################################################################################################
+
+import pytesseract
+
 #######################################################################################################################
 # Function that performs ocr on an image and return the text extracted as a dictionary
 # Parameters: the image to be scanned and optional configurations if desired
 # Returns: the image's text information as a dictionary for more structured analysis (like skipping unsure words)
 #######################################################################################################################
-import pytesseract
-
-
 def ocr_data(img, config=""):
     """Return tesseract data as a dictionary to inspect word confidences."""
     # Use the default engine mode for tesseract since it's more accurate

@@ -6,14 +6,13 @@
 # File Description......: defines functions that processes a Yugioh card into data that can be saved to the database
 #######################################################################################################################
 
-# imports
+# imports from python library
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance  # for image manipulation
 import pytesseract                              # for ocular recognition functionality
 import re                                       # for pattern matching text extracted from cards
-import numpy as np
-import difflib
 import os
 
+# imports from various other modules of the program
 from YugiohCardDigitizer.extractors.atkdef_extractor import fix_atkdef_labels, extract_atk_def_numbers
 from YugiohCardDigitizer.extractors.attribute_classifier import classify_attribute
 from YugiohCardDigitizer.extractors.name_extractor import correct_chars_for_name
@@ -71,12 +70,6 @@ def process_yugioh_card(image_path):
     atkdef_raw = pytesseract.image_to_string(atkdef_img, config="--psm 7").strip() # extract raw ATK/DEF data
     atkdef_fixed_labels = fix_atkdef_labels(atkdef_raw)
     atk, defn = extract_atk_def_numbers(atkdef_fixed_labels)
-    print(f"ATK/DEF raw: {atkdef_raw}")
-    print(f"Fixed labels: {atkdef_fixed_labels}")
-    print(f"Final: {atk} {defn}")
-    print("ATK/DEF image size:", atkdef_img.size)
-    atkdef_img.save("DEBUG_atkdef.png")
-    print("ATK/DEF RAW (repr):", repr(atkdef_raw))
 
     # ----------IMAGE FILEPATH -----
     filename = os.path.basename(image_path) # only keep non-nested base name

@@ -1,5 +1,12 @@
-from PIL import ImageFilter, ImageEnhance, ImageOps, Image
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines functions that prepares a cropped image of a card's atk/def for OCR and matching
+#######################################################################################################################
 
+from PIL import ImageFilter, ImageEnhance, ImageOps, Image
 
 #######################################################################################################################
 # Function used to prepare a card's cropped attribute icon and a known icon for equal match comparison

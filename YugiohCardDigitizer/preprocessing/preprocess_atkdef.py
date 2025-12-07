@@ -1,3 +1,11 @@
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines a function that prepares a cropped image of a card's atk/def for OCR
+#######################################################################################################################
+
 #######################################################################################################################
 # Function that prepares a cropped image of a card's attack and defense for tesseract
 # Parameters: the original cropped image

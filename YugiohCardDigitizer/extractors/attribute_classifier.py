@@ -1,8 +1,14 @@
-import os
+######################################################################################################################
+# Project...............: Yugioh Card Library
+# Author................: Ben Stearns
+# Date..................: 12-4-25
+# Project Description...: This application creates a digital database library for storing and managing Yugioh cards
+# File Description......: defines functions for extracting a card's attribute through best-match scenario
+#######################################################################################################################
 
+import os
 import numpy as np
 from PIL import Image
-
 from YugiohCardDigitizer.preprocessing.preprocess_attribute import preprocess_attr_for_match
 
 
