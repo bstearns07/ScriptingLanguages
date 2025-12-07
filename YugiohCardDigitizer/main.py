@@ -13,7 +13,7 @@ from flask import Flask, session, render_template, request, redirect, flash, url
 import webbrowser                                                                       # for launching the app
 import DBcm                                                                             # for database functionality
 from Yugioh_Card import YugiohCard
-from preprossing import process_yugioh_card                                             # for ocr image processing
+from tesseract import process_yugioh_card                                             # for ocr image processing
 
 # main program variables
 app = Flask(__name__)                               # defines main app object associated with code's current namespace

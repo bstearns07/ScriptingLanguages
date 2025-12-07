@@ -13,7 +13,7 @@ import re                                       # for pattern matching text extr
 import numpy as np
 import difflib
 import os
-DIGIT_FIX = {'O':'0', 'D':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8'} # for mapping common OCR misreads to correct digits
+
 # define a list of all monster types for matching
 KNOWN_TYPES = [
     "AQUA", "BEAST", "BEAST-WARRIOR", "CREATOR GOD", "CYBERSE", "DINOSAUR",
@@ -124,7 +124,6 @@ def classify_attribute(cropped_attr_img, template_dir="attributes"):
             best_match = label
 
     return best_match
-
 
 #######################################################################################################################
 # Function that performs ocr on an image and return the text extracted as a dictionary
@@ -401,7 +400,8 @@ def process_yugioh_card(image_path):
             # if a match is found, normalize the data and return it. Otherwise return nothing for ATK and DEF
             if match:
                 # Normalize digits inside numbers only
-                DIGIT_FIX = { 'O':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8' }
+                #{'O':'0', 'D':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8'}
+                DIGIT_FIX = {'O':'0', 'I':'1', 'L':'1', 'S':'5', 'B':'8'}
                 atk = int("".join(DIGIT_FIX.get(ch, ch) for ch in match.group(1)))
                 defe = int("".join(DIGIT_FIX.get(ch, ch) for ch in match.group(2)))
                 return atk, defe
@@ -409,7 +409,7 @@ def process_yugioh_card(image_path):
     atk, defn = extract_atk_def_numbers(atkdef_fixed_labels)
 
     # ---------- CARD TYPE ----------
-    # if the card has an attack value, it's type is a monster. otherwise match its type with it's attribute
+    # if the card has an attack value, it's type is a monster. otherwise match its type with its attribute
     if atk is not None:
         card_type = "Monster"
     elif attribute == "SPELL":

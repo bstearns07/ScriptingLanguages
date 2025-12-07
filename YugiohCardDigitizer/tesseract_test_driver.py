@@ -9,7 +9,7 @@
 
 # imports
 import os
-from preprossing import process_yugioh_card
+from tesseract import process_yugioh_card
 
 # defines the directory to search for images in
 images_dir = "samples"  # represents the directory containing the images to scan
