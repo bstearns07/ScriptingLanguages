@@ -4,14 +4,14 @@
 # Returns: the preprocessed version of the image
 #######################################################################################################################
 from PIL import ImageOps, ImageFilter
-
-def preprocess_atkdef(img):
-    gray = img.convert("L") # converts the image to greyscale using Pillow's 'L' mode
-    gray = ImageOps.autocontrast(gray) # removes color information, leaving only brightness levels for OCR
-    gray = gray.resize((gray.width * 3, gray.height * 3), Image.LANCZOS) # increase the size of the image
-
-    # make edges of image cripser with a sharp mask
-    # radius=1 is how far around each pixel to look
-    # percent = how strong the sharpening effect is
-    gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=150))
-    return gray
+#
+# def preprocess_atkdef(img):
+#     gray = img.convert("L") # converts the image to greyscale using Pillow's 'L' mode
+#     gray = ImageOps.autocontrast(gray) # removes color information, leaving only brightness levels for OCR
+#     gray = gray.resize((gray.width * 3, gray.height * 3), Image.LANCZOS) # increase the size of the image
+#
+#     # make edges of image cripser with a sharp mask
+#     # radius=1 is how far around each pixel to look
+#     # percent = how strong the sharpening effect is
+#     gray = gray.filter(ImageFilter.UnsharpMask(radius=1, percent=150))
+#     return gray
