@@ -321,7 +321,8 @@ def scan():
         return redirect(url_for("scan"))
 
     if not allowed_file(file.filename):
-        flash("Unsupported file type", "danger")
+        # Save the uploaded file
+        flash("Unsupported file type. Please use one of the following extensions: png, jpg, jpeg, gif", "danger")
         return redirect(url_for("scan"))
 
     # Save the uploaded file

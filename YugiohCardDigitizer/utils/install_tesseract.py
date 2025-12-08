@@ -19,22 +19,24 @@ INSTALLER_PATH = Path("tesseract-installer.exe") # represents the path to run th
 
 def require_admin():
     """Re-launch the script with admin privileges if not already elevated."""
+    # call the IsUserAdmin Windows api to return true or false if user has admin privileges
+    # if fails, you're not on a Window system so return false
     try:
         is_admin = ctypes.windll.shell32.IsUserAnAdmin()
     except:
         is_admin = False
 
+    # if user is not an admin, relaunch the app as Administrator using the ShellExecuteW Windows api
     if not is_admin:
-        # Relaunch with admin rights
         ctypes.windll.shell32.ShellExecuteW(
-            None,
-            "runas",
-            sys.executable,
-            " ".join(sys.argv),
-            None,
-            1
+            None, # no parent window
+            "runas", # tells Windows to run this as administrator
+            sys.executable, # points to currently running python interpreter
+            " ".join(sys.argv), # repasses cli arguments so script restarts exactly the same way
+            None, # points to current working directory
+            1 # displays a normal window
         )
-        sys.exit()  # Exit original (non-admin) process
+        sys.exit()
 
 # defines a function to install the tesseract program if it isn't found on the host system
 def install_tesseract():
@@ -81,7 +83,7 @@ def install_tesseract():
         # otherwise display the installer finished successfully
         print("\n✅ Installer completed successfully.")
 
-        # Add Tesseract to PATH by appending it's folder to environment variable
+        # Add Tesseract to PATH by appending its folder to environment variable
         tesseract_dir = os.path.dirname(TESSERACT_EXE)
         subprocess.run(
             f'setx PATH "%PATH%;{tesseract_dir}"',

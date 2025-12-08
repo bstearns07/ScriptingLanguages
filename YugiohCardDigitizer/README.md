@@ -5,7 +5,7 @@
 - [How Does it Work](#how-does-it-work)
 - [Requirements](#requirements)
 - [How to Run the Application](#how-to-run-the-application)
-- [Directory Struncture](#directory-structure)
+- [Directory Structure](#directory-structure)
 - [Screenshots](#screenshots)
     - [Main Menu](#main-menu)
     - [View Library Page](#library-page)
@@ -15,7 +15,7 @@
 
 # Summary
 
-This is a database program project that utilizes a python Flash interface to manage an SQL lite
+This is a library program that utilizes a python Flash interface to manage an SQL lite
 database to store and manage your Yugioh cards as a digital library.
 
 # How Does it Work?
@@ -39,7 +39,7 @@ To run this application, simply run main.py and you're good to go! The app will 
 If you need to regenerate the database simply run create_database.py, and it will create a new database with seeded data
 
 # Directory Structure
-![Tree](./Screenshots/directory_tree.png)
+<img src="./Screenshots/directory_tree.png" width="400"><br>
 Curious as to what everything does? Here's the breakdown:
 - Attributes: this folder contains known, accurate images to be used to compare to what OCR sees to make the best match 
 - Data_Layer: this folder contains the database file, a script to recreate the database if needed, and the class file defining a Yugioh card object

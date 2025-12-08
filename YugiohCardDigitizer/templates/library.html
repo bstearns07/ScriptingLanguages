@@ -10,9 +10,11 @@
 -->
 
 {% block body %}
-    <div class="row btn btn-primary">
-        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Main Menu</a>
+    <div class="d-flex justify-content-center gap-2 mt-3">
+        <a href="{{ url_for('add_card') }}" class="btn btn-success uniform-btn">Add Card</a>
+        <a href="{{ url_for('index') }}" class="btn btn-primary uniform-btn">Back to Main Menu</a>
     </div>
+
     <figure class="col">
         <table class="table table-bordered table-striped table-hover">
             <thead>
@@ -43,7 +45,8 @@
             </tbody>
         </table>
     </figure>
-    <div class="row btn btn-primary">
-        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Main Menu</a>
+    <div class="d-flex justify-content-center gap-2 mt-3">
+        <a href="{{ url_for('add_card') }}" class="btn btn-success uniform-btn">Add Card</a>
+        <a href="{{ url_for('index') }}" class="btn btn-primary uniform-btn">Back to Main Menu</a>
     </div>
 {% endblock %}
