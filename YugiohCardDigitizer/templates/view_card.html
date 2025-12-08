@@ -19,10 +19,11 @@
     </div>
     {% endif %}
     <table class="table table-bordered table-striped">
-        <thead>
-            <tr>{{ card.name }}</tr>
-        </thead>
         <tbody>
+            <tr>
+                <td>Name</td>
+                <td>{{ card.name }}</td>
+            </tr>
             <tr>
                 <td>Card Type</td>
                 <td>{{ card.card_type }}</td>
@@ -53,8 +54,10 @@
             {% endif %}
         </tbody>
     </table>
-    <div class="row justify-content-center" style="max-width: 200px;">
-        <a href="javascript:history.back()" class="btn btn-primary">Back</a>
+    <div class="d-flex justify-content-center gap-2 mt-3">
+        <a href="{{ url_for('edit_card', card_id=card.id) }}" class="btn btn-info uniform-btn">Edit</a>
+        <a href="{{ url_for('confirm_delete', card_id=card.id) }}" class="btn btn-danger uniform-btn">Delete</a>
+        <a href="javascript:history.back()" class="btn btn-primary uniform-btn" style="max-width:200px;">Back</a>
     </div>
 </div>
 {% endblock %}

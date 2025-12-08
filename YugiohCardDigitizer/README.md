@@ -20,27 +20,28 @@ database to store and manage your Yugioh cards as a digital library.
 
 # How Does it Work?
 What can this program do for you? Here's what all this program does:
-1. Add cards via a text entry interface, including uploading images!
-2. Delete or modify existing cards if you need to make changes
-3. View all the cards contained in your database
-4. View cards one at a time for a more detailed view
+- Add cards via a text entry interface, including uploading images!
+- Delete or modify existing cards if you need to make changes
+- iew all the cards contained in your database
+- View cards one at a time for a more detailed view
+- Last but not least, this app features Tesseract OCR to use card images to upload cards to you database!
 
 # Requirements
 In order to run this application, please make sure to:
-1. Install all needed libraries using pip commands from your IDE terminal, or right-clicking the import if your IDE supports it
-2. Install tesseract in its default location of: C:\Program Files\Tesseract-OCR\tesseract.exe. The Windows installer file is included in this project or go online to: https://github.com/UB-Mannheim/tesseract/wiki
+- Install all needed libraries using pip commands from your IDE terminal, or right-clicking the import if your IDE supports it
+- Install tesseract in its default location of: C:\Program Files\Tesseract-OCR\tesseract.exe. The Windows installer file is included in this project or go online to: https://github.com/UB-Mannheim/tesseract/wiki
 
 And that's it!
 
 # How to Run the Application
-To run this application, simple run main.py and the app will be launched hosted under your local host address.
+To run this application, simply run main.py and you're good to go! The app will be launched hosted under your local host address.
 
 If you need to regenerate the database simply run create_database.py, and it will create a new database with seeded data
 
 # Directory Structure
 ![Tree](./Screenshots/directory_tree.png)
 Curious as to what everything does? Here's the breakdown:
-- Attribute: this folder contains known, accurate images to be used to compare to what OCR sees to make the best match 
+- Attributes: this folder contains known, accurate images to be used to compare to what OCR sees to make the best match 
 - Data_Layer: this folder contains the database file, a script to recreate the database if needed, and the class file defining a Yugioh card object
 - Extractors: scripts to extract the various information we need to know about a card, because every part of the card needs its own, unique processing
 - Preprocessing: scripts that prepare cropped sections of a card image and prepare them for optimal success of tesseract OCR extraction

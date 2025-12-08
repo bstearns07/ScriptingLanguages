@@ -99,8 +99,18 @@
                     <label class="form-label form-label-strong">Attribute</label>
                 </div>
                 <div class="col">
-                    <input type="text" class="form-control" name="attribute"
-                           value="{{ card.attribute if card else '' }}">
+                    <select name="attribute" class="form-select">
+                        <option value="">Select an Attribute</option>
+                        {% for attr in KNOWN_ATTRIBUTES %}
+                        <option value="{{ attr }}"
+                            {% if card and card.attribute == attr %}selected{% endif %}>
+                            {{ attr }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+<!--                    <input type="text" class="form-control" name="attribute"-->
+<!--                           value="{{ card.attribute if card else '' }}">-->
                 </div>
             </div>
         </div>
@@ -131,7 +141,7 @@
                 // Initialize on page load
                 toggleMonsterFields();
 
-                // Toggle on change
+                // Toggle whenever a new selection for card_type is made change
                 cardTypeSelect.addEventListener("change", toggleMonsterFields);
             });
         </script>

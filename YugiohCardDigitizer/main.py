@@ -13,6 +13,7 @@ from flask import Flask, session, render_template, request, redirect, flash, url
 import webbrowser                                                                       # for launching the app
 import DBcm                                                                             # for database functionality
 
+from YugiohCardDigitizer.utils.constants import KNOWN_ATTRIBUTES
 from YugiohCardDigitizer.utils.install_tesseract import ensure_tesseract
 from tesseract import process_yugioh_card                                             # for ocr image processing
 
@@ -77,7 +78,7 @@ def index():
     # renders the index.html template with required data
     return render_template(
         "index.html",
-        title="Yugioh Card Digitizer",) # the title used in the head element for the page
+        title="Yugioh Card Digitizer") # the title used in the head element for the page
 
 #######################################################################################################################
 # Function: handles get requests to view all cards in the database
@@ -124,7 +125,7 @@ def view_card(card_id):
         "image_filename": row[8] if len(row) > 8 else None
     }
 
-    return render_template("view_card.html", card=card)
+    return render_template("view_card.html", title="View Card", card=card)
 
 #######################################################################################################################
 # Function   : handles get and post requests to update a card's information in the database
@@ -148,10 +149,11 @@ def edit_card(card_id):
         return render_template(
             "add_edit.html",
             title="Edit Card",
+            KNOWN_ATTRIBUTES=KNOWN_ATTRIBUTES,
             card=card
         )
 
-    # POST → save the updated card
+    # POST and save the updated card
     form = request.form
     with DBcm.UseDatabase(db_details) as db:
         SQL = """
@@ -233,6 +235,7 @@ def add_card():
     return render_template(
         "add_edit.html",
         title="Add Card",
+        KNOWN_ATTRIBUTES=KNOWN_ATTRIBUTES,
         card=None  # no card = adding mode
     )
 

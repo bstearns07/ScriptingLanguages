@@ -16,3 +16,7 @@ KNOWN_TYPES = [
 
 # Common OCR corrections for Yu-Gi-Oh monster types
 COMMON_FIXES = {"0": "O","1": "I","5": "S","6": "G","8": "B","4": "A","|": "I","{": "[","}": "]",}
+
+# List of known monster attributes
+KNOWN_ATTRIBUTES = ["DARK","LIGHT","DIVINE","EARTH","FIRE", "WATER","WIND"]
+
