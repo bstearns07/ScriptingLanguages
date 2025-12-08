@@ -8,10 +8,10 @@
 
 import os
 from Yugioh_Card import YugiohCard
-import sqlite3
 import DBcm
 
-db_details = "Cards.sqlite3"
+BASE_DIR = os.path.dirname(__file__)  # folder where create_database.py lives
+db_details = os.path.join(BASE_DIR, "Cards.sqlite3")
 
 # --- NEW: Delete existing database first ---
 if os.path.exists(db_details):

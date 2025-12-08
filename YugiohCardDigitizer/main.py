@@ -12,6 +12,8 @@ from werkzeug.utils import secure_filename                                      
 from flask import Flask, session, render_template, request, redirect, flash, url_for    # for webapp functionality
 import webbrowser                                                                       # for launching the app
 import DBcm                                                                             # for database functionality
+
+from YugiohCardDigitizer.utils.install_tesseract import ensure_tesseract
 from tesseract import process_yugioh_card                                             # for ocr image processing
 
 # main program variables
@@ -19,7 +21,7 @@ app = Flask(__name__)                               # defines main app object as
 app.secret_key = "supersecretcantguessme"           # defines a key for encrypting session data. Required for Flask
 UPLOAD_FOLDER = "static/images/cards"               # defines the fil path to the folder for storing uploaded images
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}  # defines what images extensions are allowed to be uploaded
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER         # stores the upload folder path as a Flask configuration for use
 
 #######################################################################################################################
 # Function: checks whether an uploaded filename has an allowed file extension
@@ -33,15 +35,10 @@ def allowed_file(filename):
 # Returns.: session data for all cards in the database
 #######################################################################################################################
 def retrieve_library():
-    db_details = "Cards.sqlite3"
-
-    # 1. Check if data in session is still valid by retrieving the highest id number in the database (cheap query)
-    with DBcm.UseDatabase(db_details) as db:
-        db.execute("SELECT MAX(id) FROM cards") #
-        latest_id = db.fetchone()[0]
+    db_details = "data_layer/Cards.sqlite3"
 
     # If session has no cache or the card with the highest id isn't the same as the last fetch, refresh cache
-    if "cards" not in session or session.get("cards_latest_id") != latest_id:
+    if "cards" not in session:
         with DBcm.UseDatabase(db_details) as db:
             SQL = """
                 SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename
@@ -68,7 +65,6 @@ def retrieve_library():
 
         # Save new cache + new database state
         session["cards"] = cards
-        session["cards_latest_id"] = latest_id
 
     return session["cards"]
 
@@ -93,7 +89,7 @@ def library():
     return render_template(
         "library.html",
         title="Your Library",
-        cards=cards # the session data for all cards in the datbase
+        cards=cards # the session data for all cards in the database
     )
 
 #######################################################################################################################
@@ -103,7 +99,7 @@ def library():
 #######################################################################################################################
 @app.get("/view/<int:card_id>")
 def view_card(card_id):
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
 
     # query the database to select the chosen card's id number
     with DBcm.UseDatabase(db_details) as db:
@@ -137,16 +133,18 @@ def view_card(card_id):
 #######################################################################################################################
 @app.route("/edit/<int:card_id>", methods=["GET", "POST"])
 def edit_card(card_id):
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
 
     # GET → load the form with card data
     if request.method == "GET":
         cards = retrieve_library()
         card = next((c for c in cards if c["id"] == card_id), None)
 
+        # if card isn't found, return a 404 error
         if card is None:
             return "Card not found", 404
 
+        # otherwise, return add_edit.html with the retrieved card
         return render_template(
             "add_edit.html",
             title="Edit Card",
@@ -184,7 +182,7 @@ def edit_card(card_id):
 #######################################################################################################################
 @app.route("/add", methods=["GET", "POST"])
 def add_card():
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
 
     # if a post is made, parse the form's data into variables
     if request.method == "POST":
@@ -245,7 +243,7 @@ def add_card():
 #######################################################################################################################
 @app.get("/delete/<int:card_id>")
 def confirm_delete(card_id):
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
 
     # retrieve the card to be deleted from the database to display to the user for confirmation
     with DBcm.UseDatabase(db_details) as db:
@@ -273,7 +271,7 @@ def confirm_delete(card_id):
 #######################################################################################################################
 @app.post("/delete/<int:card_id>")
 def delete_card(card_id):
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
 
     # perform the database operation for selecting the chosen card from the database and actually deleting it
     with DBcm.UseDatabase(db_details) as db:
@@ -299,7 +297,18 @@ def delete_card(card_id):
 @app.route("/scan", methods=["GET", "POST"])
 def scan():
     if request.method == "GET":
-        return render_template("scan.html", title="Scan Image")
+        # attempt to retrieve the filepath to the host machine's installed tesseract program
+        tesseract_path = ensure_tesseract()
+
+        # if tesseract is found, pass True to the page rendered. Otherwise, pass False to the page
+        if tesseract_path:
+            tesseract_exists = True
+            title = "Scan Image"
+        else:
+            tesseract_exists = False
+            title = ""
+
+        return render_template("scan.html", title=title, tesseract_exists=tesseract_exists)
 
     # POST → handle uploaded image
     file = request.files.get("card_image")
@@ -352,7 +361,7 @@ def confirm_scan():
         filename = existing_filename  # <-- keep original
 
     # Save data to database
-    db_details = "Cards.sqlite3"
+    db_details = "data_layer/Cards.sqlite3"
     with DBcm.UseDatabase(db_details) as db:
         SQL = """
             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)

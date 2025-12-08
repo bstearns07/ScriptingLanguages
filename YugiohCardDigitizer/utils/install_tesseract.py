@@ -42,7 +42,7 @@ def install_tesseract():
 
     # define a safety statement that returns false that the installer file isn't present just in case
     if not INSTALLER_PATH.exists():
-        print(f"❌ Installer not found: {INSTALLER_PATH}")
+        print(f" Installer not found: {INSTALLER_PATH}")
         return False
 
     # attempt to run the installer to install tesseract
@@ -75,7 +75,7 @@ def install_tesseract():
 
         # Once the process is done, check if it returned an error code. If so, display an error occurred. Return false
         if process.returncode != 0:
-            print("\n❌ Installer exited with an error.")
+            print("\n Installer exited with an error.")
             return False
 
         # otherwise display the installer finished successfully
@@ -95,7 +95,7 @@ def install_tesseract():
 
     # catch all other exception that may occur and return false
     except Exception as e:
-        print(f"❌ Failed to install Tesseract: {e}")
+        print(f"Failed to install Tesseract: {e}")
         return False
 
 def ensure_tesseract():

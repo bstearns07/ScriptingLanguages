@@ -12,14 +12,12 @@ import os
 from tesseract import process_yugioh_card
 
 # defines the directory to search for images in
-images_dir = "samples"  # represents the directory containing the images to scan
+image_path = "samples/blue_eyes.png"  # represents the path to the image to test
 
 # defines a function that loops through all images in the scan directory and attempt to extra card data from them
 def main():
-    for file in os.listdir(images_dir):
-        image_filepath = os.path.join(images_dir, file)     # defines the full filepath to the image
-        result = process_yugioh_card(image_filepath)
-        print(result)
+    result = process_yugioh_card(image_path)
+    print(result)
 
 if __name__ == "__main__":
     main()
