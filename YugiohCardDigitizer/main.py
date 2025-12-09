@@ -139,7 +139,7 @@ def edit_card(card_id):
     # GET → load the form with card data
     if request.method == "GET":
         cards = retrieve_library()
-        card = next((c for c in cards if c["id"] == card_id), None)
+        card = next((c for c in cards if c["id"] == card_id), None) # looks through every card retrieved and returns the matching id
 
         # if card isn't found, return a 404 error
         if card is None:
