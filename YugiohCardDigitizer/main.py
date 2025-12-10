@@ -19,7 +19,7 @@ from tesseract import process_yugioh_card                                       
 
 # main program variables
 app = Flask(__name__)                               # defines main app object associated with code's current namespace
-app.secret_key = "supersecretcantguessme"           # defines a key for encrypting session data. Required for Flask
+app.secret_key = "supercalifragilistic"             # defines a key for encrypting session data. Required for Flask
 UPLOAD_FOLDER = "static/images/cards"               # defines the fil path to the folder for storing uploaded images
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}  # defines what images extensions are allowed to be uploaded
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER         # stores the upload folder path as a Flask configuration for use
@@ -41,12 +41,12 @@ def retrieve_library():
     # If session has no cache or the card with the highest id isn't the same as the last fetch, refresh cache
     if "cards" not in session:
         with DBcm.UseDatabase(db_details) as db:
-            SQL = """
+            sql = """
                 SELECT id, name, card_type, monster_type, description, attack, defense, attribute, image_filename
                 FROM cards
                 ORDER BY name
             """
-            db.execute(SQL)
+            db.execute(sql)
             results = db.fetchall()
 
         # Convert tuples to list of dictionaries for easier Jinja display
@@ -156,12 +156,12 @@ def edit_card(card_id):
     # POST and save the updated card
     form = request.form
     with DBcm.UseDatabase(db_details) as db:
-        SQL = """
+        sql = """
             UPDATE cards
             SET name=?, card_type=?, monster_type=?, description=?, attack=?, defense=?, attribute=?
             WHERE id=?
         """
-        db.execute(SQL, (
+        db.execute(sql, (
             form["name"],
             form["card_type"],
             form["monster_type"],
@@ -209,11 +209,11 @@ def add_card():
         # Save all data to the database
         with DBcm.UseDatabase(db_details) as db:
             # placeholder query
-            SQL = """
+            sql = """
             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """
-            db.execute(SQL, (
+            db.execute(sql, (
                 name,
                 card_type,
                 monster_type,
@@ -231,7 +231,7 @@ def add_card():
         flash("Card successfully added!", "success")
         return redirect(url_for("index"))
 
-    # otherwise, handle a simple get requst that returns a blank add/edit page
+    # otherwise, handle a simple get request that returns a blank add/edit page
     return render_template(
         "add_edit.html",
         title="Add Card",
@@ -250,8 +250,8 @@ def confirm_delete(card_id):
 
     # retrieve the card to be deleted from the database to display to the user for confirmation
     with DBcm.UseDatabase(db_details) as db:
-        SQL = "SELECT id, name, image_filename FROM cards WHERE id = ?"
-        db.execute(SQL, (card_id,))
+        sql = "SELECT id, name, image_filename FROM cards WHERE id = ?"
+        db.execute(sql, (card_id,))
         card = db.fetchone()
 
     # if the card doesn't exist in the database, just redirect back to the library page to prevent crashes
@@ -278,12 +278,12 @@ def delete_card(card_id):
 
     # perform the database operation for selecting the chosen card from the database and actually deleting it
     with DBcm.UseDatabase(db_details) as db:
-        SQL = "SELECT image_filename FROM cards WHERE id = ?"
-        db.execute(SQL, (card_id,))
+        sql = "SELECT image_filename FROM cards WHERE id = ?"
+        db.execute(sql, (card_id,))
         row = db.fetchone()
 
-        SQL = "DELETE FROM cards WHERE id = ?"
-        db.execute(SQL, (card_id,))
+        sql = "DELETE FROM cards WHERE id = ?"
+        db.execute(sql, (card_id,))
 
     # Clear cached session list
     session.pop("cards", None)
@@ -367,11 +367,11 @@ def confirm_scan():
     # Save data to database
     db_details = "data_layer/Cards.sqlite3"
     with DBcm.UseDatabase(db_details) as db:
-        SQL = """
+        sql = """
             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
-        db.execute(SQL, (
+        db.execute(sql, (
             name,
             card_type,
             monster_type,
