@@ -29,6 +29,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER         # stores the upload folder p
 # Returns.: true if the image has an allowed extension. Otherwise returns false
 #######################################################################################################################
 def allowed_file(filename):
+    # check if filename has a . and if splitting the filename by . only once and casting to lower is in ALLOW_EXTENSIONS
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 #######################################################################################################################
@@ -78,7 +79,7 @@ def index():
     # renders the index.html template with required data
     return render_template(
         "index.html",
-        title="Yugioh Card Digitizer") # the title used in the head element for the page
+        title="Yugioh Card Library") # the title used in the head element for the page
 
 #######################################################################################################################
 # Function: handles get requests to view all cards in the database
@@ -136,10 +137,12 @@ def view_card(card_id):
 def edit_card(card_id):
     db_details = "data_layer/Cards.sqlite3"
 
-    # GET → load the form with card data
+    # GET load the form with card data
     if request.method == "GET":
         cards = retrieve_library()
-        card = next((c for c in cards if c["id"] == card_id), None) # looks through every card retrieved and returns the matching id
+        # looks through every card retrieved and returns the matching id
+        # stop the loop once found using the next() function
+        card = next((c for c in cards if c["id"] == card_id), None)
 
         # if card isn't found, return a 404 error
         if card is None:
@@ -176,6 +179,7 @@ def edit_card(card_id):
     session.pop("cards", None)
 
     flash("Card successfully updated!", "success")
+
     return redirect(url_for("library"))
 
 #######################################################################################################################
@@ -196,8 +200,28 @@ def add_card():
         defense = request.form.get("defense")
         attribute = request.form.get("attribute")
 
+        card = {
+            "name": name,
+            "card_type": card_type,
+            "description": description,
+            "monster_type": monster_type,
+            "attack": attack,
+            "defense": defense,
+            "attribute": attribute
+        }
+
         # Retrieve the card image uploaded by the user if they supplied one
         file = request.files.get("card_image")
+
+        if file and not allowed_file(file.filename):
+            # Save the uploaded file
+            flash("Unsupported file type. Please use one of the following extensions: png, jpg, jpeg, gif", "danger")
+            return render_template(
+                "add_edit.html",
+                title="Add Card",
+                KNOWN_ATTRIBUTES=KNOWN_ATTRIBUTES,
+                card=card
+            )
 
         # if the file exists and is an allowed extension, sanitize the filename and save to the upload folder
         if file and allowed_file(file.filename):
@@ -265,7 +289,7 @@ def confirm_delete(card_id):
         "image_filename": card[2]
     }
 
-    return render_template("confirm_delete.html", card=card_obj)
+    return render_template("confirm_delete.html",title="Confirm Delete", card=card_obj)
 
 #######################################################################################################################
 # Function   : handles get requests to delete a card from the database
@@ -311,6 +335,8 @@ def scan():
             tesseract_exists = False
             title = ""
 
+        # tesseract_exists = False
+
         return render_template("scan.html", title=title, tesseract_exists=tesseract_exists)
 
     # POST → handle uploaded image
@@ -341,7 +367,7 @@ def scan():
     # Include the saved image file for preview
     card_data["image_filename"] = filename
 
-    return render_template("confirm_scan.html", card=card_data)
+    return render_template("confirm_scan.html",title="Confirm Scan", card=card_data)
 
 @app.post("/confirm_scan")
 def confirm_scan():
@@ -386,7 +412,6 @@ def confirm_scan():
 
     flash("Card successfully added!", "success")
     return redirect(url_for("index"))
-
 
 # if the program is run directly, open the app in a web browser and run the app
 if __name__ == "__main__":

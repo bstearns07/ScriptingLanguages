@@ -115,7 +115,7 @@
 
         <div class="d-flex justify-content-center gap-2 mt-3">
             <button class="btn btn-success w-100" style="max-width:200px;" type="submit">
-                {{ "Update" if card else "Add Card" }}
+                {{ "Update" if card and title != "Add Card" else "Add Card" }}
             </button>
 
             <a href="javascript:history.back()" class="btn btn-primary w-100" style="max-width:200px;">
