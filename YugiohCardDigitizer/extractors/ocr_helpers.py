@@ -3,7 +3,8 @@
 # Author................: Ben Stearns
 # Date..................: 12-4-25
 # Project Description...: This application creates a digital database library for storing and managing Yugioh cards
-# File Description......: defines functions for extracting a card image's description information
+# File Description......: defines functions for beginning extraction of a card image's information and keeping only
+#                         high confidence words
 #######################################################################################################################
 
 import pytesseract
@@ -41,6 +42,7 @@ def ocr_text_from_data(data, min_conf=60):
 
         # attempt to extract the confidence level for the word by its corresponding index
         # sometimes tesseract returns level as a string, so wrap in try/except just in case and return -1 if fails
+        # convert to decimal first in case a decimal is returned so a raise a ValueError exception doesn't raise
         try:
             conf = int(float(data['conf'][index]))
         except:

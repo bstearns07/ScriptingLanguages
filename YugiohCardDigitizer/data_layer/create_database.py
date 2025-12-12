@@ -26,7 +26,7 @@ insert_SQL = """
 with DBcm.UseDatabase(db_details) as db:
     SQL = """create table if not exists cards (
             id integer not null primary key autoincrement,
-            name varchar(32) not null,
+            name varchar(32) not null unique,
             card_type varchar(32) not null,
             monster_type varchar(32),  
             description varchar(500) not null,  

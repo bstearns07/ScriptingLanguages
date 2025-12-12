@@ -8,6 +8,8 @@
 
 # imports
 import os                                                                               # for file operations
+import sqlite3
+
 from werkzeug.utils import secure_filename                                              # to sanitizing filenames
 from flask import Flask, session, render_template, request, redirect, flash, url_for    # for webapp functionality
 import webbrowser                                                                       # for launching the app
@@ -330,14 +332,10 @@ def scan():
         # if tesseract is found, pass True to the page rendered. Otherwise, pass False to the page
         if tesseract_path:
             tesseract_exists = True
-            title = "Scan Image"
         else:
             tesseract_exists = False
-            title = ""
 
-        # tesseract_exists = False
-
-        return render_template("scan.html", title=title, tesseract_exists=tesseract_exists)
+        return render_template("scan.html", title="Scan Image", tesseract_exists=tesseract_exists)
 
     # POST → handle uploaded image
     file = request.files.get("card_image")
@@ -371,6 +369,7 @@ def scan():
 
 @app.post("/confirm_scan")
 def confirm_scan():
+    # store form data posted by the user
     name = request.form["name"]
     card_type = request.form["card_type"]
     description = request.form["description"]
@@ -383,12 +382,24 @@ def confirm_scan():
     file = request.files.get("card_image")
     existing_filename = request.form.get("image_filename")
 
-    # If user uploaded a new image, save it
+    # If user uploaded a new image, save it. Otherwise, keep the original filename
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
     else:
-        filename = existing_filename  # <-- keep original
+        filename = existing_filename
+
+    # define a dictionary from all data obtained for the card
+    card = {
+        "name": name,
+        "card_type": card_type,
+        "description": description,
+        "monster_type": monster_type,
+        "attack": attack,
+        "defense": defense,
+        "attribute": attribute,
+        "image_filename": filename
+    }
 
     # Save data to database
     db_details = "data_layer/Cards.sqlite3"
@@ -397,16 +408,37 @@ def confirm_scan():
             INSERT INTO cards (name, card_type, monster_type, description, attack, defense, attribute, image_filename)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
-        db.execute(sql, (
-            name,
-            card_type,
-            monster_type,
-            description,
-            attack,
-            defense,
-            attribute,
-            filename
-        ))
+        try:
+            db.execute(sql, (
+                name,
+                card_type,
+                monster_type,
+                description,
+                attack,
+                defense,
+                attribute,
+                filename
+            ))
+        # handle any unique constraint errors
+        except sqlite3.IntegrityError as e:
+            flash("A card with that name already exists.", "danger")
+            # attempt to retrieve the filepath to the host machine's installed tesseract program
+            tesseract_path = ensure_tesseract()
+
+            # if tesseract is found, pass True to the page rendered. Otherwise, pass False to the page
+            if tesseract_path:
+                tesseract_exists = True
+            else:
+                tesseract_exists = False
+            return render_template(
+                "confirm_scan.html",
+                title="Scan Card",
+                tesseract_exists=tesseract_exists,
+                card=card)
+        except Exception as e:
+            # This catches all OTHER errors
+            flash(f"An unexpected database error occurred: {e}", "danger")
+            return render_template("confirm_scan.html", card=card)
 
     session.pop("cards", None)
 
